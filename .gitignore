@@ -1,2 +1,5 @@
-# Directories
+# PyCache
 __pycache__/
+
+# Poetry
+dist/

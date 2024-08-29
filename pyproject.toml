@@ -8,10 +8,26 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-pytest = "^8.3.2"
 networkx = "^3.3"
+overloading = "^0.5.0"
+multipledispatch = "^1.0.0"
 
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.11.2"
+pytest = "^8.3.2"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
+disable_error_code = ["no-redef", "import-not-found"]
+
+
+[tool.pytest.ini_options]
+pythonpath = [
+  ".", "spization",
+]
