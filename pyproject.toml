@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "spization"
+version = "0.1.0"
+description = "Package for Graph Series-Parallel-ization"
+authors = ["Marsella8 <pietromax.marsella@gmail.com>"]
+license = "GPL-3.0-or-later"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pytest = "^8.3.2"
+networkx = "^3.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

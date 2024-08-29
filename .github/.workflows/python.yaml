@@ -1,0 +1,87 @@
+name: python
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+jobs:
+
+  python:
+    strategy:
+      matrix:
+        # https://ncorti.com/blog/howto-github-actions-build-matrix
+        # Sadly, support for macOS M1 chips yet:
+        # https://github.com/actions/runner-images/issues/2187
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        python-version: [3.9, '3.10', 3.11, 3.12]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - run: |
+        pip install .[dev]
+
+    - run: |
+        ruff check .
+
+    - run: |
+        ruff format --check .
+
+    - run: |
+        flake8 .
+
+    - run: |
+        pylint modern_python_package
+
+    - run: |
+        pytest
+
+    - run: |
+        pyright
+
+    - run: |
+        python -m build --wheel
+
+    - uses: haya14busa/action-cond@v1
+      id: singleton
+      with:
+        cond: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.8' && github.actor != 'dependabot[bot]' }}
+        if_true: true
+
+    - if: ${{ steps.singleton.outputs.value }}
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        junit_files: coverage.xml
+
+    - if: ${{ steps.singleton.outputs.value }}
+      uses: codecov/codecov-action@v3
+      with:
+        fail_ci_if_error: true
+
+    - run: |
+        portray on_github_pages --force
+      if: ${{ github.ref == 'refs/heads/main' && steps.singleton.outputs.value }}
+
+    # Follow:
+    # https://packaging.python.org/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
+    # to publish the generated wheel to pypi.org. You may optionally remove the
+    # 'if' condition, and add a 'with'
+    # repository_url: https://test.pypi.org/legacy, and use the password
+    # test_pypi_password to verify that publication to test.pypi.org works.
+    - uses: pypa/gh-action-pypi-publish@release/v1
+      if: ${{ startsWith(github.ref, 'refs/tags') && steps.singleton.outputs.value }}
+      with:
+        password: ${{ secrets.PYPI_SECRET }}
+  
