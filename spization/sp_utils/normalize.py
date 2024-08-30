@@ -18,7 +18,7 @@ def normalize(sp : Parallel) -> SerialParallelDecomposition:
 @multimethod
 def normalize(sp : Serial) -> SerialParallelDecomposition:
     if is_empty(sp): return sp
-    if len(sp.children) == 1:
+    if len(sp) == 1:
         return get_only(sp)
     children = filterfalse(is_empty, sp.children)
     children = [normalize(c) for c in children]
