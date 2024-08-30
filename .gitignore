@@ -10,5 +10,8 @@ dist/
 # PyTest
 .pytest_cache/
 
-#CodeCov
+# CodeCov
 .coverage
+
+# Ruff
+.ruff_cache

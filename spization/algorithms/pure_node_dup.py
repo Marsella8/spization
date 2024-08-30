@@ -1,4 +1,4 @@
-from typing import Iterator
+from typing import Iterator, Iterable
 from networkx import DiGraph
 import networkx as nx
 from spization.sp_utils.serial_parallel_decomposition import SerialParallelDecomposition
@@ -16,6 +16,11 @@ from spization.utils.graph_utils import (
 from spization.utils.general_utils import get_only
 
 
+def parallel_composition_with_coalescing(
+    elements: Iterable[SerialParallelDecomposition],
+) -> SerialParallelDecomposition:
+    return 0
+
 def pure_node_dup(g: DiGraph) -> SerialParallelDecomposition:
     assert is_2_terminal_dag(g) and is_integer_graph(g)
     root = get_only(sources(g))
@@ -23,11 +28,11 @@ def pure_node_dup(g: DiGraph) -> SerialParallelDecomposition:
     for node in nx.topological_sort(g):
         if node == root:
             continue
-        predecessors: Iterator[SerialParallelDecomposition] = g.predecessors(node)
+        predecessors: Iterator[int] = g.predecessors(node)
         node_to_sp[node] = normalize(
             sp_serial_composition(
                 (
-                    sp_parallel_composition([node_to_sp.get(p) for p in predecessors]),
+                    sp_parallel_composition(node_to_sp[p] for p in predecessors),
                     node,
                 )
             )

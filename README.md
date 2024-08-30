@@ -11,3 +11,5 @@ This project is licensed under the GNU General Public License v3.0 or later.
 
 For testing: `pytest`
 For codecov: `pytest --cov=spization`
+For linting: `ruff check`/`ruff format`
+For type checking: `mypy .`
