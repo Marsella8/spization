@@ -1,8 +1,8 @@
 from .serial_parallel_decomposition import SerialParallelDecomposition, Serial, Parallel
 from .nodes import get_nodes
-from multipledispatch import dispatch as overload
+from multimethod import multimethod
 
-@overload(Serial, int, set)
+@multimethod
 def perform_traversal(serial: Serial, starting_node: int, ancestors: set[int]) -> bool:
     for child in serial.children:
         found_starting_node = perform_traversal(child, starting_node, ancestors)
@@ -10,7 +10,7 @@ def perform_traversal(serial: Serial, starting_node: int, ancestors: set[int]) -
             return True
     return False
 
-@overload(Parallel, int, set)
+@multimethod
 def perform_traversal(parallel: Parallel, starting_node: int, ancestors: set[int]) -> bool:
     if starting_node in get_nodes(parallel):
         branch_with_starting_node = next(
@@ -23,7 +23,7 @@ def perform_traversal(parallel: Parallel, starting_node: int, ancestors: set[int
         perform_traversal(child, starting_node, ancestors)
     return False
 
-@overload(int, int, set)
+@multimethod
 def perform_traversal(node: int, starting_node: int, ancestors: set[int]) -> bool:
     if starting_node != node:
         ancestors.add(node)
@@ -35,5 +35,3 @@ def get_ancestors(sp: SerialParallelDecomposition, starting_node: int) -> set[in
     ancestors : set[int] = set()
     perform_traversal(sp, starting_node, ancestors)
     return ancestors
-
-

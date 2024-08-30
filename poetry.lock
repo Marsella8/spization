@@ -118,17 +118,6 @@ files = [
 ]
 
 [[package]]
-name = "multipledispatch"
-version = "1.0.0"
-description = "Multiple dispatch"
-optional = false
-python-versions = "*"
-files = [
-    {file = "multipledispatch-1.0.0-py3-none-any.whl", hash = "sha256:0c53cd8b077546da4e48869f49b13164bebafd0c2a5afceb6bb6a316e7fb46e4"},
-    {file = "multipledispatch-1.0.0.tar.gz", hash = "sha256:5c839915465c68206c3e9c473357908216c28383b425361e5d144594bf85a7e0"},
-]
-
-[[package]]
 name = "mypy"
 version = "1.11.2"
 description = "Optional static typing for Python"
@@ -202,17 +191,6 @@ developer = ["changelist (==0.5)", "mypy (>=1.1)", "pre-commit (>=3.2)", "rtoml"
 doc = ["myst-nb (>=1.0)", "numpydoc (>=1.7)", "pillow (>=9.4)", "pydata-sphinx-theme (>=0.14)", "sphinx (>=7)", "sphinx-gallery (>=0.14)", "texext (>=0.6.7)"]
 extra = ["lxml (>=4.6)", "pydot (>=2.0)", "pygraphviz (>=1.12)", "sympy (>=1.10)"]
 test = ["pytest (>=7.2)", "pytest-cov (>=4.0)"]
-
-[[package]]
-name = "overloading"
-version = "0.5.0"
-description = "Function overloading for Python 3"
-optional = false
-python-versions = "*"
-files = [
-    {file = "overloading-0.5.0-py3-none-any.whl", hash = "sha256:c28d2a227cfb6bdefcfe0ded055bc620a5c784a52ecadc441f8d6c281b8bb1c1"},
-    {file = "overloading-0.5.0.tar.gz", hash = "sha256:493f0f67211244ed6bf2acf9f3ac61fb38e8aa87834c4f0f84d8943512066588"},
-]
 
 [[package]]
 name = "packaging"
@@ -292,4 +270,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "558ccad68ddb23a6f751771b64dbfbba7e3f354bae121c3460f5896c51efda48"
+content-hash = "7c444169ea6189ad1e523da3e8b556f6428436e387d956058dfc4f180a7678c6"

@@ -37,5 +37,4 @@ def test_parallel_composition_empty():
 def test_serial_composition_empty():
     result = serial_composition((Serial(()), ))
     expected = Serial(())
-    print(type(result), type(expected), type(result)==type(expected))
     assert result == expected

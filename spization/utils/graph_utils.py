@@ -14,7 +14,7 @@ def is_2_terminal_dag(G : DiGraph) -> bool:
         return False
     return True
 
-def is_integer_graph(G) -> bool:
+def is_integer_graph(G: DiGraph) -> bool:
     if not all(isinstance(node, int) for node in G.nodes()):
         return False
     return True

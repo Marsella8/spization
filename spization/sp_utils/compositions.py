@@ -1,8 +1,7 @@
 from spization.sp_utils.serial_parallel_decomposition import SerialParallelDecomposition, Serial, Parallel
 from collections import Counter
 from multimethod import multimethod
-from typing import Iterable, Union, Iterator
-from multipledispatch import dispatch as overload
+from typing import Iterable, Union
 from networkx import DiGraph
 import networkx as nx
 from functools import reduce

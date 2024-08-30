@@ -4,7 +4,6 @@ from spization.sp_utils.normalize import normalize
 def test_normalize_parallel_basic():
     sp = Parallel((1, 2, 3))
     result = normalize(sp)
-    print(result)
     expected = Parallel((1, 2, 3))
     assert result == expected
 

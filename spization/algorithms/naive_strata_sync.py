@@ -9,12 +9,13 @@ from spization.sp_utils.normalize import normalize
 def barrier_sync(G : DiGraph) -> SerialParallelDecomposition:
     assert is_2_terminal_dag(G) and is_integer_graph(G)
     
-    s = get_only(sources(G))
-    longest_path_lengths = single_source_longest_dag_path_length(G, s)
+    s : int = get_only(sources(G))
+    longest_path_lengths : dict[int, float] = single_source_longest_dag_path_length(G, s)
     
     groups = defaultdict(list)
     for node, length in longest_path_lengths.items():
         groups[length].append(node)
     
     sp : SerialParallelDecomposition = serial_composition([parallel_composition(list(group)) for _,group in sorted(groups.items(), key=lambda t : t[0])])
-    return normalize(sp)
+    sp = normalize(sp)
+    return sp
