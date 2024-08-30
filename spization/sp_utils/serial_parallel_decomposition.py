@@ -21,6 +21,9 @@ class Parallel:
     def __iter__(self) -> Iterator[Union['Serial', int]]:
         return iter(self.children.elements())
 
+    def __len__(self) -> int:
+        return len(self.children)
+
 @dataclass
 class Serial:
     children: list[Union['Parallel', int]]
@@ -39,5 +42,8 @@ class Serial:
     
     def __iter__(self) -> Iterator[Union['Parallel', int]]:
         return iter(self.children)
+
+    def __len__(self) -> int:
+        return len(self.children)
 
 SerialParallelDecomposition = Union[Serial, Parallel, int]
