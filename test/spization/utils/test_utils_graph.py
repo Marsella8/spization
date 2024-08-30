@@ -1,5 +1,5 @@
 import networkx as nx
-from spization.utils.graph_utils import (
+from spization.utils.graph import (
     sources,
     sinks,
     is_2_terminal_dag,

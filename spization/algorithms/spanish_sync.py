@@ -1,8 +1,8 @@
 from networkx import DiGraph, topological_sort, transitive_reduction
 import networkx as nx
-from spization.utils.graph_utils import single_source_longest_dag_path_length
-from spization.utils.general_utils import get_only
-from spization.utils.graph_utils import sources
+from spization.utils.graph import single_source_longest_dag_path_length
+from spization.utils.utils import get_only
+from spization.utils.graph import sources
 
 
 def get_subtree(G: DiGraph, root: int) -> set[int]:

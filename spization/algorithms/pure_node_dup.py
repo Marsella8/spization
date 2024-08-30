@@ -10,14 +10,14 @@ from spization.sp_utils.compositions import (
     sp_parallel_composition,
 )
 from spization.sp_utils.normalize import normalize
-from spization.utils.graph_utils import (
+from spization.utils.graph import (
     sources,
     sinks,
     is_2_terminal_dag,
     is_integer_graph,
 )
 from itertools import groupby
-from spization.utils.general_utils import get_only
+from spization.utils.utils import get_only
 
 
 def tree_pure_node_dup(g: DiGraph) -> SerialParallelDecomposition:

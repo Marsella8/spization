@@ -1,4 +1,4 @@
-from spization.utils.general_utils import get_only
+from spization.utils.utils import get_only
 
 
 def test_get_only():

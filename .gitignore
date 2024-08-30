@@ -17,4 +17,4 @@ dist/
 .ruff_cache
 
 # CI
-.github/
+.github

@@ -8,7 +8,7 @@ from typing import Iterable, Union
 from networkx import DiGraph
 import networkx as nx
 from functools import reduce
-from spization.utils.graph_utils import sources, sinks
+from spization.utils.graph import sources, sinks
 
 
 def sp_parallel_composition(

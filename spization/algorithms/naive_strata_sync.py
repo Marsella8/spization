@@ -5,17 +5,17 @@ from spization.sp_utils.compositions import (
 )
 from networkx import DiGraph
 from spization.sp_utils.serial_parallel_decomposition import SerialParallelDecomposition
-from spization.utils.graph_utils import (
+from spization.utils.graph import (
     single_source_longest_dag_path_length,
     is_2_terminal_dag,
     is_integer_graph,
     sources,
 )
-from spization.utils.general_utils import get_only
+from spization.utils.utils import get_only
 from spization.sp_utils.normalize import normalize
 
 
-def barrier_sync(G: DiGraph) -> SerialParallelDecomposition:
+def naive_strata_sync(G: DiGraph) -> SerialParallelDecomposition:
     assert is_2_terminal_dag(G) and is_integer_graph(G)
 
     s: int = get_only(sources(G))

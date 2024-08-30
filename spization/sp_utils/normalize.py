@@ -3,7 +3,7 @@ from multimethod import multimethod
 from itertools import filterfalse
 from .is_empty import is_empty
 from .compositions import sp_parallel_composition, sp_serial_composition
-from spization.utils.general_utils import get_only
+from spization.utils.utils import get_only
 
 
 @multimethod
