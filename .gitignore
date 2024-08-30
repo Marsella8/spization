@@ -3,3 +3,12 @@ __pycache__/
 
 # Poetry
 dist/
+
+# MyPy
+.mypy_cache/
+
+# PyTest
+.pytest_cache/
+
+#CodeCov
+.coverage

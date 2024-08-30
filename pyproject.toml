@@ -11,11 +11,13 @@ python = "^3.11"
 networkx = "^3.3"
 overloading = "^0.5.0"
 multipledispatch = "^1.0.0"
+multimethod = "^1.12"
 
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.11.2"
 pytest = "^8.3.2"
+pytest-cov = "^5.0.0"
 
 [build-system]
 requires = ["poetry-core"]
