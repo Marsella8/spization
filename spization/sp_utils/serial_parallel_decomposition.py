@@ -1,6 +1,7 @@
 from typing import Union, Iterator
 from collections import Counter
 from dataclasses import dataclass
+from multimethod import multimethod
 
 
 @dataclass
@@ -47,6 +48,14 @@ class Serial:
 
     def __len__(self) -> int:
         return len(self.children)
+
+    @multimethod
+    def __getitem__(self, index: int) -> Union["Parallel", int]:
+        return self.children[index]
+
+    @multimethod
+    def __getitem__(self, range: slice) -> "Serial":
+        return Serial(self.children[range])
 
 
 SerialParallelDecomposition = Union[Serial, Parallel, int]

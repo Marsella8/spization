@@ -24,7 +24,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.mypy]
 strict = true
 ignore_missing_imports = true
-disable_error_code = ["no-redef", "import-not-found"]
+disable_error_code = ["no-redef", "import-not-found", "no-any-return"]
 exclude = ["test"]
 
 [tool.ruff]

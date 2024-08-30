@@ -15,3 +15,6 @@ dist/
 
 # Ruff
 .ruff_cache
+
+# CI
+.github/
