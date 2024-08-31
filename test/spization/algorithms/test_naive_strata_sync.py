@@ -1,6 +1,8 @@
 from networkx import DiGraph
 from spization import Serial, Parallel
 from spization.algorithms import naive_strata_sync
+from spization.utils import is_valid_sp
+from test_algorithms_utils import graph_generator
 
 
 def test_linear_graph():
@@ -8,3 +10,9 @@ def test_linear_graph():
     correct = Serial((1, Parallel((2, 3)), Parallel((4, 5)), 6))
     result = naive_strata_sync(input)
     assert correct == result
+
+
+def test_correctness():
+    for input in graph_generator():
+        result = naive_strata_sync(input)
+        assert is_valid_sp(input, result)

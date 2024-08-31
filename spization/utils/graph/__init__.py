@@ -1,7 +1,7 @@
 import networkx as nx
 from networkx import DiGraph
 from spization.utils.general import get_any, get_only
-from spization.utils.sp.serial_parallel_decomposition import Node, DummyNode
+from spization.utils.sp.serial_parallel_decomposition import Node, SyncNode
 
 
 def sources(g: DiGraph) -> set[Node]:
@@ -35,16 +35,15 @@ def lowest_common_ancestor(g: DiGraph, nodes: set[Node]) -> Node | None:
     return lca
 
 
-def replace_dummy_nodes(g: DiGraph) -> DiGraph:
+def replace_sync_nodes(g: DiGraph) -> DiGraph:
     c = g.copy()
 
     for node in g.nodes():
-        if isinstance(node, DummyNode):
-            c.remove_node(node)
-
-            for pred in list(g.predecessors(node)):
-                for succ in list(g.successors(node)):
+        if isinstance(node, SyncNode):
+            for pred in list(c.predecessors(node)):
+                for succ in list(c.successors(node)):
                     c.add_edge(pred, succ)
+            c.remove_node(node)
 
     return c
 

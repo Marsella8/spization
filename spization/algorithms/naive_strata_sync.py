@@ -9,9 +9,10 @@ from spization import (
     Node,
 )
 from spization.utils.graph import (
+    is_2_terminal_dag,
+    is_integer_graph,
     single_source_dag_longest_path_lengths_from_source,
 )
-from spization.utils.graph import is_2_terminal_dag, is_integer_graph
 from spization.utils import normalize
 
 

@@ -1,4 +1,4 @@
-from typing import Union, Iterator
+from typing import Union, Iterator, Any
 from collections import Counter
 from dataclasses import dataclass
 from multimethod import multimethod
@@ -65,5 +65,10 @@ SerialParallelDecomposition = Union[Serial, Parallel, Node]
 
 
 @dataclass(slots=True, unsafe_hash=True)
-class DummyNode:
+class SyncNode:
     id: int
+
+
+@dataclass(slots=True, unsafe_hash=True)
+class DummyNode:
+    id: Any

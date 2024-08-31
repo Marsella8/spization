@@ -4,9 +4,14 @@ A simple Python package for Graph Series-Parallel-ization.
 
 This project is licensed under the GNU General Public License v3.0 or later.
 
-#TODO:
+# TODO:
 
-- add test util to pass algo through a bunch of graphs and test empirically for correctness
+- add digraph_to_sp
+- add is_digraph_sp
+- extend spanish algorithm testing
+- add metrics
+
+## Instructions
 
 To enter the venv: `poetry shell`
 

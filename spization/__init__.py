@@ -3,6 +3,7 @@ from spization.utils.sp.serial_parallel_decomposition import (
     Parallel,
     SerialParallelDecomposition,
     Node,
+    SyncNode,
     DummyNode,
 )
 
@@ -14,6 +15,7 @@ __all__ = [
     "Parallel",
     "SerialParallelDecomposition",
     "Node",
+    "SyncNode",
     "DummyNode",
     "algorithms",
     "utils",

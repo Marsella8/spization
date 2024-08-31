@@ -1,6 +1,8 @@
 from networkx import DiGraph
 import networkx as nx
 from spization.algorithms import spanish_strata_sync
+from spization.utils import is_valid_sp
+from test_algorithms_utils import graph_generator
 
 
 def test_spanish_strata_sync_simple():
@@ -21,6 +23,7 @@ def test_spanish_strata_sync_simple_with_parallel_strand():
 
     result = spanish_strata_sync(input)
     assert nx.utils.graphs_equal(correct, result)
+    assert is_valid_sp(input, result)
 
 
 def test_spanish_strata_sync_simple_with_appendage():
@@ -60,3 +63,57 @@ def test_spanish_strata_sync_simple_with_appendage():
 
     result = spanish_strata_sync(input)
     assert nx.utils.graphs_equal(correct, result)
+    assert is_valid_sp(input, result)
+
+
+def test_spanish_strata_sync_transitive_edge():
+    input = DiGraph(
+        ((1, 2), (1, 3), (2, 4), (2, 5), (3, 11), (4, 12), (5, 11), (11, 12))
+    )
+
+    result = spanish_strata_sync(input)
+    correct = DiGraph(())
+    assert is_valid_sp(input, result)
+
+
+def test_spanish_strata_sync_graph_from_paper():
+    input = DiGraph(
+        (
+            (1, 2),
+            (1, 3),
+            (2, 4),
+            (2, 5),
+            (3, 11),
+            (3, 12),
+            (3, 13),
+            (4, 6),
+            (4, 7),
+            (5, 7),
+            (5, 8),
+            (5, 11),
+            (6, 9),
+            (7, 9),
+            (7, 10),
+            (8, 9),
+            (9, 18),
+            (10, 18),
+            (11, 17),
+            (12, 17),
+            (13, 14),
+            (13, 15),
+            (14, 16),
+            (15, 16),
+            (16, 17),
+            (17, 18),
+        )
+    )
+
+    result = spanish_strata_sync(input)
+    correct = DiGraph(())
+    assert is_valid_sp(input, result)
+
+
+def test_correctness():
+    for input in graph_generator():
+        result = spanish_strata_sync(input)
+        assert is_valid_sp(input, result)
