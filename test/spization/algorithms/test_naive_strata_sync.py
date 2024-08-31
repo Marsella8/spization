@@ -1,6 +1,6 @@
 from networkx import DiGraph
-from spization.sp_utils.serial_parallel_decomposition import Serial, Parallel
-from spization.algorithms.naive_strata_sync import naive_strata_sync
+from spization import Serial, Parallel
+from spization.algorithms import naive_strata_sync
 
 
 def test_linear_graph():

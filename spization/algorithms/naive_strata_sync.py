@@ -1,25 +1,26 @@
 from collections import defaultdict
-from spization.sp_utils.compositions import (
+from spization.utils import (
     sp_serial_composition,
     sp_parallel_composition,
 )
 from networkx import DiGraph
-from spization.sp_utils.serial_parallel_decomposition import SerialParallelDecomposition
-from spization.utils.graph import (
-    single_source_longest_dag_path_length,
-    is_2_terminal_dag,
-    is_integer_graph,
-    sources,
+from spization import (
+    SerialParallelDecomposition,
+    Node,
 )
-from spization.utils.utils import get_only
-from spization.sp_utils.normalize import normalize
+from spization.utils.graph import (
+    single_source_dag_longest_path_lengths_from_source,
+)
+from spization.utils.graph import is_2_terminal_dag, is_integer_graph
+from spization.utils import normalize
 
 
-def naive_strata_sync(G: DiGraph) -> SerialParallelDecomposition:
-    assert is_2_terminal_dag(G) and is_integer_graph(G)
+def naive_strata_sync(g: DiGraph) -> SerialParallelDecomposition:
+    assert is_2_terminal_dag(g) and is_integer_graph(g)
 
-    s: int = get_only(sources(G))
-    longest_path_lengths: dict[int, float] = single_source_longest_dag_path_length(G, s)
+    longest_path_lengths: dict[Node, int] = (
+        single_source_dag_longest_path_lengths_from_source(g)
+    )
 
     groups = defaultdict(list)
     for node, length in longest_path_lengths.items():

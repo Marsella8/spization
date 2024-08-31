@@ -1,6 +1,6 @@
 from networkx import DiGraph
-from spization.sp_utils.serial_parallel_decomposition import Serial, Parallel
-from spization.algorithms.pure_node_dup import pure_node_dup, tree_pure_node_dup
+from spization import Serial, Parallel
+from spization.algorithms import pure_node_dup, tree_pure_node_dup
 
 
 def test_tree_pure_node_dup():
