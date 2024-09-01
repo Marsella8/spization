@@ -1,5 +1,6 @@
 import networkx as nx
-from spization.utils.graph import is_2_terminal_dag, is_integer_graph
+from spization.utils.graph import is_2_terminal_dag, is_compatible_graph
+from spization import DupNode
 
 
 def test_is_2_terminal_dag_valid():
@@ -26,13 +27,14 @@ def test_is_2_terminal_dag_multiple_sinks():
     assert is_2_terminal_dag(g) is False
 
 
-def test_is_integer_graph_valid():
+def test_is_compatible_graph_valid():
     g = nx.DiGraph()
-    g.add_nodes_from([1, 2, 3, 4])
-    assert is_integer_graph(g) is True
+    g.add_nodes_from([1, 2, 3])
+    assert is_compatible_graph(g) is True
 
 
-def test_is_integer_graph_invalid():
+def test_is_compatible_graph_invalid():
     g = nx.DiGraph()
-    g.add_nodes_from([1, 2, "a", 4])
-    is_integer_graph(g) is False
+    g.add_node(1)
+    g.add_node(DupNode(2, 0))
+    is_compatible_graph(g) is False

@@ -6,7 +6,7 @@ from multimethod import multimethod
 PureNode = int
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, frozen=True)
 class DupNode:
     node: int
     dup_id: int

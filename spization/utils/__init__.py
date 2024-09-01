@@ -4,7 +4,7 @@ from spization.utils.sp.compositions import (
     graph_parallel_composition,
     graph_serial_composition,
 )
-from spization.utils.sp.digraph_from_sp import digraph_from_sp
+from spization.utils.sp.sp_to_digraph import sp_to_digraph
 from spization.utils.sp.is_empty import is_empty
 from spization.utils.sp.is_valid_sp import is_valid_sp
 from spization.utils.sp.ancestors import get_ancestors
@@ -21,7 +21,7 @@ __all__ = [
     "sp_serial_composition",
     "graph_parallel_composition",
     "graph_serial_composition",
-    "digraph_from_sp",
+    "sp_to_digraph",
     "is_empty",
     "is_valid_sp",
     "get_ancestors",

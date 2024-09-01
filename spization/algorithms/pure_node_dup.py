@@ -12,14 +12,14 @@ from spization.utils.sp.compositions import (
 )
 from spization.utils.sp.normalize import normalize
 from spization.utils.graph import sources, sinks
-from spization.utils.graph import is_2_terminal_dag, is_integer_graph
+from spization.utils.graph import is_2_terminal_dag, is_compatible_graph
 
 from itertools import groupby
 from spization.utils.general import get_only
 
 
 def tree_pure_node_dup(g: DiGraph) -> SerialParallelDecomposition:
-    assert is_2_terminal_dag(g) and is_integer_graph(g)
+    assert is_2_terminal_dag(g) and is_compatible_graph(g)
     root = get_only(sources(g))
     node_to_sp: dict[Node, SerialParallelDecomposition] = {root: root}
     for node in nx.topological_sort(g):
@@ -73,7 +73,7 @@ def sp_parallel_composition_with_coalescing(
 
 
 def pure_node_dup(g: DiGraph) -> SerialParallelDecomposition:
-    assert is_2_terminal_dag(g) and is_integer_graph(g)
+    assert is_2_terminal_dag(g) and is_compatible_graph(g)
     root = get_only(sources(g))
     node_to_sp: dict[Node, Serial | Node] = {root: root}
     for node in nx.topological_sort(g):

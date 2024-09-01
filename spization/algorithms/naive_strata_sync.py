@@ -10,14 +10,14 @@ from spization import (
 )
 from spization.utils.graph import (
     is_2_terminal_dag,
-    is_integer_graph,
+    is_compatible_graph,
     single_source_dag_longest_path_lengths_from_source,
 )
 from spization.utils import normalize
 
 
 def naive_strata_sync(g: DiGraph) -> SerialParallelDecomposition:
-    assert is_2_terminal_dag(g) and is_integer_graph(g)
+    assert is_2_terminal_dag(g) and is_compatible_graph(g)
 
     longest_path_lengths: dict[Node, int] = (
         single_source_dag_longest_path_lengths_from_source(g)

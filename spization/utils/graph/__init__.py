@@ -1,7 +1,7 @@
 import networkx as nx
 from networkx import DiGraph
 from spization.utils.general import get_any, get_only
-from spization.utils.sp.serial_parallel_decomposition import Node, SyncNode
+from spization.utils.sp.serial_parallel_decomposition import Node, PureNode, SyncNode
 
 
 def sources(g: DiGraph) -> set[Node]:
@@ -35,7 +35,7 @@ def lowest_common_ancestor(g: DiGraph, nodes: set[Node]) -> Node | None:
     return lca
 
 
-def replace_sync_nodes(g: DiGraph) -> DiGraph:
+def ttspg_to_spg(g: DiGraph) -> DiGraph:
     c = g.copy()
 
     for node in g.nodes():
@@ -64,8 +64,8 @@ def is_2_terminal_dag(g: DiGraph) -> bool:
     return True
 
 
-def is_integer_graph(g: DiGraph) -> bool:
-    return all(isinstance(node, Node) for node in g.nodes())
+def is_compatible_graph(g: DiGraph) -> bool:
+    return all(isinstance(node, PureNode) for node in g.nodes())
 
 
 def is_single_sourced(g: DiGraph) -> bool:
