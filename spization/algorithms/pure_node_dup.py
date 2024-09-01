@@ -50,13 +50,11 @@ def sp_parallel_composition_with_coalescing(
         return sp if isinstance(sp, Node) else sp[0]
 
     def cut_off_head(sp: SerialParallelDecomposition) -> Serial:
-        match sp:
-            case Node():
-                return Serial([])
-            case Serial():
-                return sp[1:]
-            case _:
-                raise TypeError
+        if isinstance(sp, Node):
+            return Serial([])
+        elif isinstance(sp, Serial):
+            return sp[1:]
+        raise TypeError
 
     groups = groupby(elements, key=get_head)
 

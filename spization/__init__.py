@@ -5,6 +5,7 @@ from spization.utils.sp.serial_parallel_decomposition import (
     Node,
     SyncNode,
     DummyNode,
+    DupNode,
 )
 
 from spization import algorithms
@@ -19,4 +20,5 @@ __all__ = [
     "DummyNode",
     "algorithms",
     "utils",
+    "DupNode",
 ]

@@ -29,7 +29,7 @@ def add_dummy_nodes(g: DiGraph) -> DiGraph:
 
             prev_node = src
             for i in range(1, depth_diff):
-                intermediate_node = DummyNode((src, dst, i))
+                intermediate_node = DummyNode()
                 new_g.add_node(intermediate_node)
                 new_g.add_edge(prev_node, intermediate_node)
                 prev_node = intermediate_node
@@ -87,7 +87,7 @@ def spanish_strata_sync(g: DiGraph) -> DiGraph:
         down = {node for node in forest if depth_map[node] == max_depth}
         up = {node for node in forest if depth_map[node] == max_depth - 1}
 
-        sync: SyncNode = SyncNode(node)
+        sync = SyncNode()
 
         for u in up:
             to_remove = [

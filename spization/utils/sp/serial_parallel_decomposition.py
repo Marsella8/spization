@@ -1,10 +1,18 @@
 from typing import Union, Iterator, Any
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from multimethod import multimethod
 
+PureNode = int
 
-Node = int
+
+@dataclass(slots=True)
+class DupNode:
+    node: int
+    dup_id: int
+
+
+Node = PureNode | DupNode
 
 
 @dataclass(slots=True)
@@ -14,7 +22,7 @@ class Parallel:
     def __post_init__(self) -> None:
         self.children = Counter(self.children)
 
-    def __hash__(self) -> Node:
+    def __hash__(self) -> int:
         return hash(tuple(self.children))
 
     def __str__(self) -> str:
@@ -37,7 +45,7 @@ class Serial:
     def __post_init__(self) -> None:
         self.children = list(self.children)
 
-    def __hash__(self) -> Node:
+    def __hash__(self) -> int:
         return hash(tuple(self.children))
 
     def __str__(self) -> str:
@@ -64,11 +72,19 @@ class Serial:
 SerialParallelDecomposition = Union[Serial, Parallel, Node]
 
 
-@dataclass(slots=True, unsafe_hash=True)
 class SyncNode:
-    id: int
+    id: int = field(init=False)
+    _counter: int = 0
+
+    def __init__(self) -> None:
+        SyncNode._counter += 1
+        self.id = SyncNode._counter
 
 
-@dataclass(slots=True, unsafe_hash=True)
 class DummyNode:
-    id: Any
+    id: Any = field(init=False)
+    _counter: int = 0
+
+    def __init__(self) -> None:
+        DummyNode._counter += 1
+        self.id = DummyNode._counter
