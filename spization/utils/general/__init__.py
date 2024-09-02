@@ -9,3 +9,6 @@ def get_only(container: Iterable[Any]) -> Any:
 
 def get_any(container: Iterable[Any]) -> Any:
     return next(iter(container))
+
+
+__all__ = ["get_any", "get_only"]

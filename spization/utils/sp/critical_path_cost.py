@@ -5,7 +5,7 @@ from .serial_parallel_decomposition import (
     Serial,
     Parallel,
 )
-from spization.utils.graph import sources
+from spization.utils.graph.sources import sources
 from networkx import DiGraph
 import networkx as nx
 

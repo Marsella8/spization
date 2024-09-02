@@ -1,5 +1,5 @@
 import networkx as nx
-from spization.utils.graph import is_2_terminal_dag, is_compatible_graph
+from spization.utils.graph.properties import is_2_terminal_dag, is_compatible_graph
 from spization import DupNode
 
 

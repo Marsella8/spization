@@ -44,7 +44,8 @@ def perform_traversal(node: Node, starting_node: Node, ancestors: set[Node]) -> 
 
 
 def get_ancestors(sp: SerialParallelDecomposition, starting_node: Node) -> set[Node]:
-    assert starting_node in get_nodes(sp), "Starting node must be in the graph"
+    assert starting_node in get_nodes(sp)
+    # TODO: assert has no duplicate nodes
     ancestors: set[Node] = set()
     perform_traversal(sp, starting_node, ancestors)
     return ancestors

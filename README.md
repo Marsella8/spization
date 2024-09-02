@@ -26,6 +26,10 @@ Your graph: sync nodes, cannot be dups
 
 - Algorithms must take in a DAG that is made up of ints and that is TTSP, and return an SPD of only ints.
 
+
+- Test that the Spanish algo maintains SPness if the input dag is already SP.
+
+Check that assumptions about SP are actually respected in the various utils functions
 In general: all graph utilities should apply to SPG, all SP utilities should apply to SPD. 
 
 ## Instructions

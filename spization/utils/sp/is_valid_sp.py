@@ -23,3 +23,6 @@ def is_valid_sp(g: DiGraph, sp: DiGraph) -> bool:
         if not (ancestors(g, node) <= ancestors(sp, node)):
             return False
     return True
+
+
+# TODO: how to change this to account for duplicate nodes, might be fine already

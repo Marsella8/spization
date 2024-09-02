@@ -59,13 +59,13 @@ def make_parallel_chains(chain_length, chain_num):
     return G
 
 
-def make_2_terminal_random_dag(num_nodes, p, step):
+def make_2_terminal_random_dag(num_nodes, p):
     G = nx.DiGraph()
 
     G.add_nodes_from(range(num_nodes))
 
     for i in range(num_nodes - 2):
-        for j in range(i + step + 1, num_nodes - 1):
+        for j in range(i + 1, num_nodes - 1):
             if random.random() < p:
                 G.add_edge(i, j)
 
@@ -93,6 +93,6 @@ def graph_generator():
     yield make_fully_connected((1, 3, 5, 10, 5, 8, 1))
     yield make_parallel_chains(9, 3)
     yield make_parallel_chains(5, 10)
-    yield make_2_terminal_random_dag(10, 0.1, 2)
-    yield make_2_terminal_random_dag(50, 0.05, 10)
-    yield make_2_terminal_random_dag(50, 0.15, 5)
+    yield make_2_terminal_random_dag(10, 0.1)
+    yield make_2_terminal_random_dag(50, 0.05)
+    yield make_2_terminal_random_dag(30, 0.15)

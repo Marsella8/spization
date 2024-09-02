@@ -11,8 +11,9 @@ from spization.utils.sp.compositions import (
     sp_parallel_composition,
 )
 from spization.utils.sp.normalize import normalize
-from spization.utils.graph import sources, sinks
-from spization.utils.graph import is_2_terminal_dag, is_compatible_graph
+from spization.utils.graph.sources import sources
+from spization.utils.graph.sinks import sinks
+from spization.utils.graph.properties import is_2_terminal_dag, is_compatible_graph
 
 from itertools import groupby
 from spization.utils.general import get_only
