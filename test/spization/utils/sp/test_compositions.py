@@ -1,8 +1,8 @@
-from spization.utils import (
-    sp_serial_composition,
-    sp_parallel_composition,
-)
 from spization import Parallel, Serial
+from spization.utils import (
+    sp_parallel_composition,
+    sp_serial_composition,
+)
 
 
 def test_parallel_composition_basic():

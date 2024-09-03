@@ -1,6 +1,8 @@
 from networkx import DiGraph
-from .longest_path_lengths_from_source import longest_path_lengths_from_source
+
 from spization.utils.sp.serial_parallel_decomposition import Node
+
+from .longest_path_lengths_from_source import longest_path_lengths_from_source
 
 
 def strata_sort(g: DiGraph) -> list[Node]:

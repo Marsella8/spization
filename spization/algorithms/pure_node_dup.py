@@ -1,22 +1,23 @@
+from itertools import groupby
 from typing import Iterator, Sequence
-from networkx import DiGraph
+
 import networkx as nx
-from spization import (
-    SerialParallelDecomposition,
-    Serial,
+from networkx import DiGraph
+
+from spization.utils.sp.serial_parallel_decomposition import (
     Node,
+    Serial,
+    SerialParallelDecomposition,
 )
+from spization.utils.general import get_only
+from spization.utils.graph.properties import is_2_terminal_dag, is_compatible_graph
+from spization.utils.graph.sinks import sinks
+from spization.utils.graph.sources import sources
 from spization.utils.sp.compositions import (
-    sp_serial_composition,
     sp_parallel_composition,
+    sp_serial_composition,
 )
 from spization.utils.sp.normalize import normalize
-from spization.utils.graph.sources import sources
-from spization.utils.graph.sinks import sinks
-from spization.utils.graph.properties import is_2_terminal_dag, is_compatible_graph
-
-from itertools import groupby
-from spization.utils.general import get_only
 
 
 def tree_pure_node_dup(g: DiGraph) -> SerialParallelDecomposition:

@@ -1,16 +1,19 @@
-from .serial_parallel_decomposition import (
-    SerialParallelDecomposition,
-    Serial,
-    Parallel,
-    Node,
-)
 from collections import Counter
-from typing import Iterable, Union
-from networkx import DiGraph
-import networkx as nx
 from functools import reduce
-from spization.utils.graph.sources import sources
+from typing import Iterable, Union
+
+import networkx as nx
+from networkx import DiGraph
+
 from spization.utils.graph.sinks import sinks
+from spization.utils.graph.sources import sources
+
+from .serial_parallel_decomposition import (
+    Node,
+    Parallel,
+    Serial,
+    SerialParallelDecomposition,
+)
 
 
 def sp_parallel_composition(

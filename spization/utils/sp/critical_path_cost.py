@@ -1,13 +1,15 @@
+import networkx as nx
 from multimethod import multimethod
+from networkx import DiGraph
+
+from spization.utils.graph.sources import sources
+
 from .serial_parallel_decomposition import (
     Node,
-    SerialParallelDecomposition,
-    Serial,
     Parallel,
+    Serial,
+    SerialParallelDecomposition,
 )
-from spization.utils.graph.sources import sources
-from networkx import DiGraph
-import networkx as nx
 
 
 @multimethod

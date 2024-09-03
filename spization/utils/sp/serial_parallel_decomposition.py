@@ -1,6 +1,7 @@
-from typing import Union, Iterator, Any
 from collections import Counter
 from dataclasses import dataclass, field
+from typing import Any, Iterator, Union
+
 from multimethod import multimethod
 
 PureNode = int

@@ -1,9 +1,10 @@
-from spization.utils.sp.serial_parallel_decomposition import Node
-from networkx import DiGraph
 import networkx as nx
+from networkx import DiGraph
+
+from spization.utils.general import get_only
 from spization.utils.graph.properties import is_single_sourced
 from spization.utils.graph.sources import sources
-from spization.utils.general import get_only
+from spization.utils.sp.serial_parallel_decomposition import Node
 
 
 def longest_path_lengths_from_source(g: DiGraph) -> dict[Node, int]:

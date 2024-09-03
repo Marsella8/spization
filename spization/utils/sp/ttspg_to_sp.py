@@ -1,5 +1,6 @@
-from .serial_parallel_decomposition import SyncNode
 from networkx import DiGraph
+
+from .serial_parallel_decomposition import SyncNode
 
 
 def ttspg_to_spg(g: DiGraph) -> DiGraph:

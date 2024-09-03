@@ -1,7 +1,8 @@
-from .compositions import graph_serial_composition, graph_parallel_composition
-from .serial_parallel_decomposition import Serial, Parallel, Node
-from networkx import DiGraph
 from multimethod import multimethod
+from networkx import DiGraph
+
+from .compositions import graph_parallel_composition, graph_serial_composition
+from .serial_parallel_decomposition import Node, Parallel, Serial
 
 
 @multimethod

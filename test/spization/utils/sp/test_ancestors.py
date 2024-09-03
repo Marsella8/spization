@@ -1,4 +1,4 @@
-from spization import Serial, Parallel
+from spization import Parallel, Serial
 from spization.utils import get_ancestors
 
 

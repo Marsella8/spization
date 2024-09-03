@@ -1,5 +1,5 @@
-from serial_parallel_decomposition import SerialParallelDecomposition
 from nodes import get_node_counter
+from serial_parallel_decomposition import SerialParallelDecomposition
 
 
 def has_no_duplicate_nodes(sp: SerialParallelDecomposition) -> bool:

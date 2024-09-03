@@ -1,8 +1,9 @@
-from networkx import DiGraph
 import networkx as nx
-from spization.utils.sp.serial_parallel_decomposition import PureNode
+from networkx import DiGraph
+
 from spization.utils.graph.sinks import sinks
 from spization.utils.graph.sources import sources
+from spization.utils.sp.serial_parallel_decomposition import PureNode
 
 
 def is_2_terminal_dag(g: DiGraph) -> bool:

@@ -1,7 +1,8 @@
-from random import random, choice, gauss
 from dataclasses import dataclass
 from math import ln
+from random import choice, gauss, random
 from typing import Callable
+
 from spization import Node
 
 

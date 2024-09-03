@@ -1,11 +1,12 @@
 from multimethod import multimethod
+from networkx import DiGraph
+
 from .serial_parallel_decomposition import (
     Node,
-    SerialParallelDecomposition,
-    Serial,
     Parallel,
+    Serial,
+    SerialParallelDecomposition,
 )
-from networkx import DiGraph
 
 
 @multimethod

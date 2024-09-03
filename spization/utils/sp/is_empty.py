@@ -1,5 +1,5 @@
-from .serial_parallel_decomposition import SerialParallelDecomposition
 from .nodes import get_nodes
+from .serial_parallel_decomposition import SerialParallelDecomposition
 
 
 def is_empty(sp: SerialParallelDecomposition) -> bool:

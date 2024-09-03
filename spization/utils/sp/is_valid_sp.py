@@ -1,8 +1,9 @@
-from networkx import ancestors, DiGraph
-from .serial_parallel_decomposition import SerialParallelDecomposition
-from .nodes import get_nodes
-from .ancestors import get_ancestors
 from multimethod import multimethod
+from networkx import DiGraph, ancestors
+
+from .ancestors import get_ancestors
+from .nodes import get_nodes
+from .serial_parallel_decomposition import SerialParallelDecomposition
 
 
 @multimethod

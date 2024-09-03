@@ -1,6 +1,6 @@
 from spization import (
-    Serial,
     Parallel,
+    Serial,
 )
 from spization.utils import normalize
 

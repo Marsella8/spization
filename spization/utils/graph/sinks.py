@@ -1,4 +1,5 @@
 from networkx import DiGraph
+
 from spization.utils.sp.serial_parallel_decomposition import Node
 
 

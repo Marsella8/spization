@@ -1,8 +1,9 @@
-from networkx import DiGraph
 import networkx as nx
+from networkx import DiGraph
+from test_algorithms_utils import graph_generator
+
 from spization.algorithms import spanish_strata_sync
 from spization.utils import is_valid_sp
-from test_algorithms_utils import graph_generator
 
 
 def test_spanish_strata_sync_simple():

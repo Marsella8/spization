@@ -1,8 +1,9 @@
 from networkx import DiGraph
-from spization import Serial, Parallel
+from test_algorithms_utils import graph_generator
+
+from spization import Parallel, Serial
 from spization.algorithms import pure_node_dup, tree_pure_node_dup
 from spization.utils import is_valid_sp
-from test_algorithms_utils import graph_generator
 
 
 def test_tree_pure_node_dup():

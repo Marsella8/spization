@@ -1,6 +1,7 @@
 import networkx as nx
-from spization.utils.graph.properties import is_2_terminal_dag, is_compatible_graph
+
 from spization import DupNode
+from spization.utils.graph.properties import is_2_terminal_dag, is_compatible_graph
 
 
 def test_is_2_terminal_dag_valid():

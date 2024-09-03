@@ -1,5 +1,6 @@
-from spization.utils.sp.serial_parallel_decomposition import Node
 from networkx import DiGraph
+
+from spization.utils.sp.serial_parallel_decomposition import Node
 
 
 def sources(g: DiGraph) -> set[Node]:

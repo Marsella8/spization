@@ -1,11 +1,12 @@
-from .serial_parallel_decomposition import (
-    SerialParallelDecomposition,
-    Serial,
-    Parallel,
-    Node,
-)
-from .nodes import get_nodes
 from multimethod import multimethod
+
+from .nodes import get_nodes
+from .serial_parallel_decomposition import (
+    Node,
+    Parallel,
+    Serial,
+    SerialParallelDecomposition,
+)
 
 
 @multimethod

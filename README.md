@@ -43,3 +43,5 @@ For codecov: `pytest --cov=spization`
 For linting: `ruff check`/`ruff format`
 
 For type checking: `mypy .`
+
+To run benchmarking: `benchmark`

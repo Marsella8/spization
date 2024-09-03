@@ -1,6 +1,8 @@
-from .serial_parallel_decomposition import Serial, Parallel, Node
-from multimethod import multimethod
 from collections import Counter
+
+from multimethod import multimethod
+
+from .serial_parallel_decomposition import Node, Parallel, Serial
 
 
 @multimethod
