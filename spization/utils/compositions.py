@@ -5,10 +5,8 @@ from typing import Iterable, Union
 import networkx as nx
 from networkx import DiGraph
 
-from spization.utils.graph.sinks import sinks
-from spization.utils.graph.sources import sources
-
-from .serial_parallel_decomposition import (
+from spization.__internals.graph import sinks, sources
+from spization.objects import (
     Node,
     Parallel,
     Serial,

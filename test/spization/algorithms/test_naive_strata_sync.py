@@ -1,8 +1,8 @@
 from networkx import DiGraph
 from test_algorithms_utils import graph_generator
 
-from spization import Parallel, Serial
 from spization.algorithms import naive_strata_sync
+from spization.objects import Parallel, Serial
 from spization.utils import is_valid_sp
 
 

@@ -1,4 +1,4 @@
-from spization import Parallel, Serial
+from spization.objects import Parallel, Serial
 from spization.utils import (
     sp_parallel_composition,
     sp_serial_composition,

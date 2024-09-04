@@ -1,4 +1,4 @@
-from spization import (
+from spization.objects import (
     Parallel,
     Serial,
 )

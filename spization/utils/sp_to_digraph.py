@@ -1,8 +1,9 @@
 from multimethod import multimethod
 from networkx import DiGraph
 
+from spization.objects import Node, Parallel, Serial
+
 from .compositions import graph_parallel_composition, graph_serial_composition
-from .serial_parallel_decomposition import Node, Parallel, Serial
 
 
 @multimethod

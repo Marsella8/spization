@@ -1,8 +1,8 @@
 import networkx as nx
 from networkx import DiGraph
 
-from spization.utils.general import get_any
-from spization.utils.sp.serial_parallel_decomposition import Node
+from spization.__internals.general import get_any
+from spization.objects import Node
 
 
 def lowest_common_ancestor(g: DiGraph, nodes: set[Node]) -> Node | None:

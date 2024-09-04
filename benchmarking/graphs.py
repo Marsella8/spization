@@ -4,12 +4,10 @@ import networkx as nx
 import numpy as np
 from networkx import DiGraph
 
+from spization.__internals.general import get_only
+from spization.__internals.graph import is_2_terminal_dag, sinks, sources
+from spization.objects import PureNode
 from spization.utils import graph_serial_composition
-from spization.utils.general import get_only
-from spization.utils.graph.properties import is_2_terminal_dag
-from spization.utils.graph.sinks import sinks
-from spization.utils.graph.sources import sources
-from spization.utils.sp.serial_parallel_decomposition import PureNode
 
 
 def make_random_2_terminal_dag(num_nodes: int, p: float) -> DiGraph:

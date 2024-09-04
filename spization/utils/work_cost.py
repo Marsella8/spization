@@ -1,7 +1,7 @@
 from multimethod import multimethod
 from networkx import DiGraph
 
-from .serial_parallel_decomposition import (
+from spization.objects import (
     Node,
     Parallel,
     Serial,

@@ -1,6 +1,6 @@
 from networkx import DiGraph
 
-from spization.utils.sp.serial_parallel_decomposition import Node
+from spization.objects import Node
 
 
 def sinks(g: DiGraph) -> set[Node]:

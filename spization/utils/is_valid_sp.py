@@ -1,9 +1,10 @@
 from multimethod import multimethod
 from networkx import DiGraph, ancestors
 
+from spization.objects import SerialParallelDecomposition
+
 from .ancestors import get_ancestors
 from .nodes import get_nodes
-from .serial_parallel_decomposition import SerialParallelDecomposition
 
 
 @multimethod

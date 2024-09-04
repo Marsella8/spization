@@ -2,16 +2,16 @@ from itertools import filterfalse
 
 from multimethod import multimethod
 
-from spization.utils.general import get_only
-
-from .compositions import sp_parallel_composition, sp_serial_composition
-from .is_empty import is_empty
-from .serial_parallel_decomposition import (
+from spization.__internals.general import get_only
+from spization.objects import (
     Node,
     Parallel,
     Serial,
     SerialParallelDecomposition,
 )
+
+from .compositions import sp_parallel_composition, sp_serial_composition
+from .is_empty import is_empty
 
 
 @multimethod

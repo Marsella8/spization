@@ -3,7 +3,7 @@ from math import log
 from random import choice, gauss, random
 from typing import Callable
 
-from spization import Node
+from spization.objects import Node
 
 
 @dataclass(slots=True, frozen=True)

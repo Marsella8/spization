@@ -1,12 +1,13 @@
 from multimethod import multimethod
 
-from .nodes import get_nodes
-from .serial_parallel_decomposition import (
+from spization.objects import (
     Node,
     Parallel,
     Serial,
     SerialParallelDecomposition,
 )
+
+from .nodes import get_nodes
 
 
 @multimethod

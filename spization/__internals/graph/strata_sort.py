@@ -1,6 +1,6 @@
 from networkx import DiGraph
 
-from spization.utils.sp.serial_parallel_decomposition import Node
+from spization.objects import Node
 
 from .longest_path_lengths_from_source import longest_path_lengths_from_source
 

@@ -1,7 +1,6 @@
 import networkx as nx
 
-from spization.utils.graph.sinks import sinks
-from spization.utils.graph.sources import sources
+from spization.__internals.graph import sinks, sources
 
 
 def test_sources_basic():
