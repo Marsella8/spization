@@ -1,30 +1,29 @@
-from collections import Counter
 from dataclasses import dataclass
 from typing import Iterator, Union
 
 from multimethod import multimethod
-
+from multiset import Multiset
 from .nodes import Node
 
 
 @dataclass(slots=True)
 class Parallel:
-    children: Counter[Union["Serial", Node]]
+    children: Multiset[Union["Serial", Node]]
 
     def __post_init__(self) -> None:
-        self.children = Counter(self.children)
+        self.children = Multiset(self.children)
 
     def __hash__(self) -> int:
         return hash(tuple(self.children))
 
     def __str__(self) -> str:
-        return f"P{tuple(self.children.elements())}"
+        return f"P{tuple(self.children)}"
 
     def __repr__(self) -> str:
         return self.__str__()
 
     def __iter__(self) -> Iterator[Union["Serial", Node]]:
-        return iter(self.children.elements())
+        return iter(self.children)
 
     def __len__(self) -> Node:
         return len(self.children)

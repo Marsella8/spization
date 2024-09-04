@@ -1,5 +1,5 @@
 from networkx import DiGraph
-from test_algorithms_utils import graph_generator
+from testing_utils import graph_generator
 
 from spization.algorithms import pure_node_dup, tree_pure_node_dup
 from spization.objects import Parallel, Serial

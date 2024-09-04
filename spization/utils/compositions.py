@@ -1,4 +1,4 @@
-from collections import Counter
+from multiset import Multiset
 from functools import reduce
 from typing import Iterable, Union
 
@@ -17,7 +17,7 @@ from spization.objects import (
 def sp_parallel_composition(
     elements: Iterable[SerialParallelDecomposition],
 ) -> Parallel:
-    children: Counter[Union[Serial, Node]] = Counter()
+    children: Multiset[Union[Serial, Node]] = Multiset()
     for element in elements:
         if isinstance(element, Parallel):
             children += element.children

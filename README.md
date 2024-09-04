@@ -43,6 +43,7 @@ Your graph: sync nodes, cannot be dups
     - Run it on the 3 graph types, make bar plots
 - Add the diagram with the various classes
 - Change from counter to multiset
+- try fix sp vs graph composition 
 
 ## Instructions
 

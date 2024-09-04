@@ -220,6 +220,17 @@ files = [
 ]
 
 [[package]]
+name = "multiset"
+version = "3.2.0"
+description = "An implementation of a multiset."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "multiset-3.2.0-py2.py3-none-any.whl", hash = "sha256:d31c6737f537d326835b55be72d0b2e2cf368c874a58cc87879f349273841a1a"},
+    {file = "multiset-3.2.0.tar.gz", hash = "sha256:7c59a786284b9c339df4f219dcbb4ce5f44d3ac1b20f922636c4d789e89cf7b5"},
+]
+
+[[package]]
 name = "mypy"
 version = "1.11.2"
 description = "Optional static typing for Python"
@@ -517,4 +528,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "bf4d9bcea1a8022996bc96bedd4e490e9ca2b0a81f69805ac725a990be55fe1d"
+content-hash = "e592734dcbb104e2f9cec4a56ba148e2495bab9cc693e92cad7d99dc3e5de4d0"

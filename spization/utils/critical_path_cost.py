@@ -10,9 +10,13 @@ from spization.objects import (
     SerialParallelDecomposition,
 )
 
+Number = float | int
+
 
 @multimethod
-def critical_path_cost(node: Node, cost_map: dict[Node, float] | None = None) -> float:
+def critical_path_cost(
+    node: Node, cost_map: dict[Node, Number] | None = None
+) -> Number:
     if cost_map is None:
         return 1
     return cost_map[node]
@@ -20,20 +24,31 @@ def critical_path_cost(node: Node, cost_map: dict[Node, float] | None = None) ->
 
 @multimethod
 def critical_path_cost(
-    parallel: Parallel, cost_map: dict[Node, float] | None = None
-) -> float:
+    node: Node, cost_map: dict[Node, Number] | None = None
+) -> Number:
+    if cost_map is None:
+        return 1
+    return cost_map[node]
+
+
+@multimethod
+def critical_path_cost(
+    parallel: Parallel, cost_map: dict[Node, Number] | None = None
+) -> Number:
     return max(critical_path_cost(child, cost_map) for child in parallel)
 
 
 @multimethod
 def critical_path_cost(
-    serial: Serial, cost_map: dict[Node, float] | None = None
-) -> float:
+    serial: Serial, cost_map: dict[Node, Number] | None = None
+) -> Number:
     return sum(critical_path_cost(child, cost_map) for child in serial)
 
 
 @multimethod
-def critical_path_cost(g: DiGraph, cost_map: dict[Node, float] | None = None) -> float:
+def critical_path_cost(
+    g: DiGraph, cost_map: dict[Node, Number] | None = None
+) -> Number:
     assert nx.is_directed_acyclic_graph(g)
     if cost_map is None:
         cost_map = {node: 1 for node in g.nodes()}
@@ -50,16 +65,16 @@ def critical_path_cost(g: DiGraph, cost_map: dict[Node, float] | None = None) ->
 def relative_critical_path_cost_increase(
     original: DiGraph,
     modified: SerialParallelDecomposition,
-    cost_map: dict[Node, float] | None = None,
-) -> float:
+    cost_map: dict[Node, Number] | None = None,
+) -> Number:
     return critical_path_cost(modified, cost_map) / critical_path_cost(
         original, cost_map
     )
 
 
 def relative_critical_path_cost_increase(
-    original: DiGraph, modified: Serial, cost_map: dict[Node, float] | None = None
-) -> float:
+    original: DiGraph, modified: Serial, cost_map: dict[Node, Number] | None = None
+) -> Number:
     return critical_path_cost(modified, cost_map) / critical_path_cost(
         original, cost_map
     )

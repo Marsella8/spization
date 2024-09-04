@@ -17,8 +17,6 @@ from .sp_to_digraph import sp_to_digraph
 from .ttspg_to_sp import ttspg_to_spg
 from .work_cost import relative_work_cost_increase, work_cost
 
-nodes = None
-del nodes
 __all__ = [
     "sp_parallel_composition",
     "sp_serial_composition",

@@ -1,6 +1,6 @@
 import networkx as nx
 from networkx import DiGraph
-from test_algorithms_utils import graph_generator
+from testing_utils import graph_generator
 
 from spization.algorithms import spanish_strata_sync
 from spization.utils import is_valid_sp

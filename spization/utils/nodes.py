@@ -1,4 +1,4 @@
-from collections import Counter
+from multiset import Multiset
 
 from multimethod import multimethod
 
@@ -22,7 +22,7 @@ def get_nodes(node: Node) -> set[Node]:
 
 @multimethod
 def get_node_counter(node: Node):
-    return Counter({node: 1})
+    return Multiset({node})
 
 
 @multimethod
