@@ -1,7 +1,6 @@
 import networkx as nx
 from networkx import DiGraph
 
-from spization.utils.sp.serial_parallel_decomposition import DummyNode, Node, SyncNode
 from spization.utils import ttspg_to_spg
 from spization.utils.general import get_only
 from spization.utils.graph.longest_path_lengths_from_source import (
@@ -11,6 +10,7 @@ from spization.utils.graph.lowest_common_ancestor import lowest_common_ancestor
 from spization.utils.graph.properties import is_2_terminal_dag, is_compatible_graph
 from spization.utils.graph.sources import sources
 from spization.utils.graph.strata_sort import strata_sort
+from spization.utils.sp.serial_parallel_decomposition import DummyNode, Node, SyncNode
 
 
 def add_dummy_nodes(g: DiGraph) -> DiGraph:

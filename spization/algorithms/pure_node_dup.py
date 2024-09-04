@@ -4,11 +4,6 @@ from typing import Iterator, Sequence
 import networkx as nx
 from networkx import DiGraph
 
-from spization.utils.sp.serial_parallel_decomposition import (
-    Node,
-    Serial,
-    SerialParallelDecomposition,
-)
 from spization.utils.general import get_only
 from spization.utils.graph.properties import is_2_terminal_dag, is_compatible_graph
 from spization.utils.graph.sinks import sinks
@@ -18,6 +13,11 @@ from spization.utils.sp.compositions import (
     sp_serial_composition,
 )
 from spization.utils.sp.normalize import normalize
+from spization.utils.sp.serial_parallel_decomposition import (
+    Node,
+    Serial,
+    SerialParallelDecomposition,
+)
 
 
 def tree_pure_node_dup(g: DiGraph) -> SerialParallelDecomposition:

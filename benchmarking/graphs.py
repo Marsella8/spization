@@ -4,10 +4,12 @@ import networkx as nx
 import numpy as np
 from networkx import DiGraph
 
+from spization.utils import graph_serial_composition
+from spization.utils.general import get_only
 from spization.utils.graph.properties import is_2_terminal_dag
 from spization.utils.graph.sinks import sinks
 from spization.utils.graph.sources import sources
-from spization.utils.sp.serial_parallel_decomposition import Node
+from spization.utils.sp.serial_parallel_decomposition import PureNode
 
 
 def make_random_2_terminal_dag(num_nodes: int, p: float) -> DiGraph:
@@ -47,7 +49,6 @@ def make_random_local_2_terminal_dag(
         for j in range(i + 1, max_j):
             if random() < p:
                 g.add_edge(i, j)
-    assert is_2_terminal_dag(g)
 
     source = 0
     sink = num_nodes - 1
@@ -63,23 +64,64 @@ def make_random_local_2_terminal_dag(
 
 
 def make_random_nasbench_101() -> DiGraph:
+    MIN_NODES = 7
     MAX_NODES = 7
     MAX_EDGES = 9
+    NUM_CELLS = 9
 
     def make_cell() -> DiGraph:
-        num_nodes: int = randint(1, MAX_NODES)
-        num_edges: int = randint(num_nodes - 1, MAX_EDGES)
-        config = np.triu(np.random.matrix(2, size=(num_nodes - 2, num_nodes - 2)))
-        input: Node = 0
-        output: Node = num_nodes - 1
+        num_nodes: int = randint(MIN_NODES, MAX_NODES)
+        inner_nodes_config = np.triu(
+            np.random.randint(2, size=(num_nodes - 2, num_nodes - 2))
+        )
+        input = PureNode(0)
+        output = PureNode(num_nodes - 1)
+        inner_nodes = [PureNode(i) for i in range(1, num_nodes - 1)]
         g = DiGraph()
+        g.add_node(input)
+        g.add_node(output)
+        for n in inner_nodes:
+            g.add_node(n)
+        for a in inner_nodes:
+            for b in inner_nodes:
+                if inner_nodes_config[a - 1][b - 1]:
+                    g.add_edge(a, b)
+        for node in inner_nodes:
+            if g.in_degree(node) == 0:
+                g.add_edge(input, node)
+            if g.out_degree(node) == 0:
+                g.add_edge(node, output)
         return g
 
     def is_valid_cell(cell: DiGraph) -> bool:
-        assert len(cell.nodes()) <= MAX_NODES
-        assert len(cell.edges()) <= MAX_EDGES
+        if not MIN_NODES <= len(cell.nodes()) <= MAX_NODES:
+            return False
+        if len(cell.edges()) > MAX_EDGES:
+            return False
+        if not is_2_terminal_dag(cell):
+            return False
+        if not nx.is_weakly_connected(cell):
+            return False
+        if get_only(sources(cell)) != PureNode(0):
+            return False
+        if get_only(sinks(cell)) != max(cell.nodes()):
+            return False
+        return True
 
-def make_taso_nasnet_a():
-    ...
+    while True:
+        cell = make_cell()
+        if is_valid_cell(cell):
+            break
+    cells = []
+    for i in range(NUM_CELLS):
+        offset = i * MAX_NODES
+        relabeled_cell = nx.relabel_nodes(cell, lambda x: x + offset)
+        cells.append(relabeled_cell)
+    net = graph_serial_composition(cells)
+    return net
 
-# TODO:other results
+
+def make_taso_nasnet_a() -> DiGraph: ...
+
+
+def make_efficient_net() -> DiGraph: ...

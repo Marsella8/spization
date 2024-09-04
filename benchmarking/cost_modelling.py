@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from math import ln
+from math import log
 from random import choice, gauss, random
 from typing import Callable
 
@@ -40,7 +40,7 @@ class Exponential:
     param: float
 
     def __call__(self) -> float:
-        return -1 / self.param * ln(random())
+        return -1 / self.param * log(random())
 
 
 @dataclass(slots=True, frozen=True)

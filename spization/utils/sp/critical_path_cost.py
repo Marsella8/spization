@@ -3,8 +3,7 @@ from multimethod import multimethod
 from networkx import DiGraph
 
 from spization.utils.graph.sources import sources
-
-from .serial_parallel_decomposition import (
+from spization.utils.sp.serial_parallel_decomposition import (
     Node,
     Parallel,
     Serial,
@@ -13,24 +12,28 @@ from .serial_parallel_decomposition import (
 
 
 @multimethod
-def critical_path_cost(node: Node, cost_map: dict[Node, float] = None) -> float:
+def critical_path_cost(node: Node, cost_map: dict[Node, float] | None = None) -> float:
     if cost_map is None:
         return 1
     return cost_map[node]
 
 
 @multimethod
-def critical_path_cost(parallel: Parallel, cost_map: dict[Node, float] = None) -> float:
+def critical_path_cost(
+    parallel: Parallel, cost_map: dict[Node, float] | None = None
+) -> float:
     return max(critical_path_cost(child, cost_map) for child in parallel)
 
 
 @multimethod
-def critical_path_cost(serial: Serial, cost_map: dict[Node, float] = None) -> float:
+def critical_path_cost(
+    serial: Serial, cost_map: dict[Node, float] | None = None
+) -> float:
     return sum(critical_path_cost(child, cost_map) for child in serial)
 
 
 @multimethod
-def critical_path_cost(g: DiGraph, cost_map: dict[Node, float] = None) -> float:
+def critical_path_cost(g: DiGraph, cost_map: dict[Node, float] | None = None) -> float:
     assert nx.is_directed_acyclic_graph(g)
     if cost_map is None:
         cost_map = {node: 1 for node in g.nodes()}
@@ -43,7 +46,20 @@ def critical_path_cost(g: DiGraph, cost_map: dict[Node, float] = None) -> float:
     return max(path_map.values())
 
 
+@multimethod
 def relative_critical_path_cost_increase(
-    sp: SerialParallelDecomposition, g: DiGraph, cost_map: dict[Node, float] = None
+    original: DiGraph,
+    modified: SerialParallelDecomposition,
+    cost_map: dict[Node, float] | None = None,
 ) -> float:
-    return critical_path_cost(sp, cost_map) / critical_path_cost(sp, cost_map)
+    return critical_path_cost(modified, cost_map) / critical_path_cost(
+        original, cost_map
+    )
+
+
+def relative_critical_path_cost_increase(
+    original: DiGraph, modified: Serial, cost_map: dict[Node, float] | None = None
+) -> float:
+    return critical_path_cost(modified, cost_map) / critical_path_cost(
+        original, cost_map
+    )

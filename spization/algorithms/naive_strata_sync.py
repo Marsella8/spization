@@ -2,10 +2,6 @@ from collections import defaultdict
 
 from networkx import DiGraph
 
-from spization.utils.sp.serial_parallel_decomposition import (
-    Node,
-    SerialParallelDecomposition,
-)
 from spization.utils import (
     normalize,
     sp_parallel_composition,
@@ -15,6 +11,10 @@ from spization.utils.graph.longest_path_lengths_from_source import (
     longest_path_lengths_from_source,
 )
 from spization.utils.graph.properties import is_2_terminal_dag, is_compatible_graph
+from spization.utils.sp.serial_parallel_decomposition import (
+    Node,
+    SerialParallelDecomposition,
+)
 
 
 def naive_strata_sync(g: DiGraph) -> SerialParallelDecomposition:

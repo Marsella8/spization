@@ -47,6 +47,7 @@ def graph_serial_composition(elements: Iterable[DiGraph]) -> DiGraph:
         g = nx.union(g1, g2)
         for n1 in sinks(g1):
             for n2 in sources(g2):
-                g.add_edge([n1, n2])
+                g.add_edge(n1, n2)
+        return g
 
     return reduce(binary_spg_serial_composition, elements)
