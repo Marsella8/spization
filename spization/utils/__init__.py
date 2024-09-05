@@ -10,11 +10,11 @@ from .critical_path_cost import (
     critical_path_cost,
     relative_critical_path_cost_increase,
 )
+from .get_nodes import get_nodes
 from .is_valid_sp import is_valid_sp
-from .nodes import get_nodes
 from .normalize import normalize
 from .sp_to_digraph import sp_to_digraph
-from .ttspg_to_sp import ttspg_to_spg
+from .ttspg_to_spg import ttspg_to_spg
 from .work_cost import relative_work_cost_increase, work_cost
 
 __all__ = [

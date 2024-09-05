@@ -1,8 +1,8 @@
-from multiset import Multiset
 from functools import reduce
 from typing import Iterable, Union
 
 import networkx as nx
+from multiset import Multiset
 from networkx import DiGraph
 
 from spization.__internals.graph import sinks, sources

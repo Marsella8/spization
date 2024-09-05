@@ -3,6 +3,7 @@ from typing import Iterator, Union
 
 from multimethod import multimethod
 from multiset import Multiset
+
 from .nodes import Node
 
 

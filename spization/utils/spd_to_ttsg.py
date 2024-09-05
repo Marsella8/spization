@@ -20,5 +20,4 @@ def sp_to_digraph(parallel: Parallel) -> DiGraph:
 
 
 @multimethod
-def sp_to_digraph(serial: Serial) -> DiGraph:
-    pass
+def sp_to_digraph(serial: Serial) -> DiGraph: ...

@@ -36,6 +36,7 @@ Your graph: sync nodes, cannot be dups
 - Have in the algo_utils, rapidcheck style property checkers:
     - is_valid_spization
     - sp remains sp
+    - transitive reduction leaves it unchanged
     - algorithm A is strictly better than B
 - Add spd_to_ttspg
 - Finish Benchmarking
@@ -43,7 +44,10 @@ Your graph: sync nodes, cannot be dups
     - Run it on the 3 graph types, make bar plots
 - Add the diagram with the various classes
 - Change from counter to multiset
-- try fix sp vs graph composition 
+- try fix sp vs graph composition
+
+Current:
+- Add cost aware spization
 
 ## Instructions
 

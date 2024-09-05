@@ -7,7 +7,7 @@ from spization.objects import (
     SerialParallelDecomposition,
 )
 
-from .nodes import get_nodes
+from .get_nodes import get_nodes
 
 
 @multimethod

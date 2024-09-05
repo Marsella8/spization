@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from rich.console import Console
 from rich.table import Table
 
-from spization.algorithms import naive_strata_sync, spanish_strata_sync
+from spization.algorithms import naive_strata_sync, pure_node_dup, spanish_strata_sync
 from spization.utils import relative_critical_path_cost_increase
 
 from .cost_modelling import Exponential, make_cost_map
@@ -33,7 +33,7 @@ def benchmark_2_terminal_random_dag(
 
     with console.status("[bold green]Processing...[/bold green]") as status:
         for i in range(epochs):
-            status.update(f"Epoch {i+1}/{epochs}")
+            status.update(f"Epoch {(i+1)/epochs*100}%")
             g = make_random_2_terminal_dag(num_nodes, p)
             sp1 = naive_strata_sync(g)
             g2 = spanish_strata_sync(g)
@@ -56,7 +56,7 @@ def benchmark_random_local_2_terminal_dag(
 
     with console.status("[bold green]Processing...[/bold green]") as status:
         for i in range(epochs):
-            status.update(f"Epoch {i+1}/{epochs}")
+            status.update(f"Epoch {(i+1)/epochs*100}%")
             g = make_random_local_2_terminal_dag(num_nodes, p, locality_ratio)
             sp1 = naive_strata_sync(g)
             g2 = spanish_strata_sync(g)
@@ -77,9 +77,9 @@ def benchmark_nasbench_101(epochs: int = 100) -> BenchmarkResult:
 
     with console.status("[bold green]Processing...[/bold green]") as status:
         for i in range(epochs):
-            status.update(f"Epoch {i+1}/{epochs}")
+            status.update(f"Epoch {(i+1)/epochs*100}%")
             g = make_random_nasbench_101()
-            sp1 = naive_strata_sync(g)
+            sp1 = pure_node_dup(g)
             g2 = spanish_strata_sync(g)
             cost_map = make_cost_map(g.nodes(), cost_sampler)
             naive_results.append(relative_critical_path_cost_increase(g, sp1, cost_map))
@@ -117,7 +117,3 @@ def run_benchmark() -> None:
 
     nasbench_101_result = benchmark_nasbench_101()
     print_benchmark_result(nasbench_101_result, "NASBench-101")
-
-
-if __name__ == "__main__":
-    run_benchmark()
