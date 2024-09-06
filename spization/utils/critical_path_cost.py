@@ -24,15 +24,6 @@ def critical_path_cost(
 
 @multimethod
 def critical_path_cost(
-    node: Node, cost_map: dict[Node, Number] | None = None
-) -> Number:
-    if cost_map is None:
-        return 1
-    return cost_map[node]
-
-
-@multimethod
-def critical_path_cost(
     parallel: Parallel, cost_map: dict[Node, Number] | None = None
 ) -> Number:
     return max(critical_path_cost(child, cost_map) for child in parallel)
@@ -72,8 +63,9 @@ def relative_critical_path_cost_increase(
     )
 
 
+@multimethod
 def relative_critical_path_cost_increase(
-    original: DiGraph, modified: Serial, cost_map: dict[Node, Number] | None = None
+    original: DiGraph, modified: DiGraph, cost_map: dict[Node, Number] | None = None
 ) -> Number:
     return critical_path_cost(modified, cost_map) / critical_path_cost(
         original, cost_map

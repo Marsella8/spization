@@ -42,8 +42,8 @@ Your graph: sync nodes, cannot be dups
     - Run it on the 4 models and have bar charts
     - Run it on the 3 graph types, make bar plots
 - Add the diagram with the various classes
-- Change from counter to multiset
 - try fix sp vs graph composition
+- add util function to print graphs
 
 Current:
 - Add cost aware spization
@@ -61,3 +61,4 @@ For linting: `ruff check`/`ruff format`
 For type checking: `mypy .`
 
 To run benchmarking: `benchmark`
+ 

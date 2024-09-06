@@ -25,11 +25,24 @@ def work_cost(sp: Parallel | Serial, cost_map: dict[Node, Number] = None) -> Num
 
 @multimethod
 def work_cost(g: DiGraph, cost_map: dict[Node, Number] = None) -> Number:
-    assert set(cost_map.keys()) == set(g.nodes())
-    return sum(cost_map.values())
+    if cost_map:
+        assert set(cost_map.keys()) == set(g.nodes())
+        sum(cost_map.values())
+    else:
+        return len(g.nodes())
 
 
+@multimethod
 def relative_work_cost_increase(
-    sp: SerialParallelDecomposition, g: DiGraph, cost_map: dict[Node, Number] = None
+    original: SerialParallelDecomposition,
+    modified: DiGraph,
+    cost_map: dict[Node, Number] = None,
 ) -> Number:
-    return work_cost(sp, cost_map) / work_cost(sp, cost_map)
+    return work_cost(modified, cost_map) / work_cost(original, cost_map)
+
+
+@multimethod
+def relative_work_cost_increase(
+    original: DiGraph, modified: DiGraph, cost_map: dict[Node, Number] = None
+) -> Number:
+    return work_cost(modified, cost_map) / work_cost(original, cost_map)

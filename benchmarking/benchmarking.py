@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from rich.console import Console
 from rich.table import Table
 
-from spization.algorithms import naive_strata_sync, pure_node_dup, spanish_strata_sync
+from spization.algorithms import naive_strata_sync, spanish_strata_sync
 from spization.utils import relative_critical_path_cost_increase
 
 from .cost_modelling import Exponential, make_cost_map
@@ -29,7 +29,7 @@ def benchmark_2_terminal_random_dag(
     console.print("[bold]Running 2-Terminal Random DAG Benchmark[/bold]")
     naive_results: list[float] = []
     spanish_results: list[float] = []
-    cost_sampler = Exponential(0.1)
+    cost_sampler = Exponential(1)
 
     with console.status("[bold green]Processing...[/bold green]") as status:
         for i in range(epochs):
@@ -47,12 +47,12 @@ def benchmark_2_terminal_random_dag(
 
 
 def benchmark_random_local_2_terminal_dag(
-    epochs: int = 100, num_nodes: int = 50, locality_ratio: float = 0.5, p: float = 0.05
+    epochs: int = 100, num_nodes: int = 50, locality_ratio: float = 0.2, p: float = 0.05
 ) -> BenchmarkResult:
     console.print("[bold]Running Random Local 2-Terminal DAG Benchmark[/bold]")
     naive_results = []
     spanish_results = []
-    cost_sampler = Exponential(0.1)
+    cost_sampler = Exponential(1)
 
     with console.status("[bold green]Processing...[/bold green]") as status:
         for i in range(epochs):
@@ -73,13 +73,13 @@ def benchmark_nasbench_101(epochs: int = 100) -> BenchmarkResult:
     console.print("[bold]Running NASBench-101 Benchmark[/bold]")
     naive_results: list[float] = []
     spanish_results: list[float] = []
-    cost_sampler = Exponential(0.1)
+    cost_sampler = Exponential(1)
 
     with console.status("[bold green]Processing...[/bold green]") as status:
         for i in range(epochs):
             status.update(f"Epoch {(i+1)/epochs*100}%")
             g = make_random_nasbench_101()
-            sp1 = pure_node_dup(g)
+            sp1 = naive_strata_sync(g)
             g2 = spanish_strata_sync(g)
             cost_map = make_cost_map(g.nodes(), cost_sampler)
             naive_results.append(relative_critical_path_cost_increase(g, sp1, cost_map))
