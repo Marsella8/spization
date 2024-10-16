@@ -18,6 +18,11 @@ Your graph: sync nodes, cannot be dups
 
 ## TODO:
 
+Main:
+  add spg_to_spd (tarjan)
+- add is_sp (side effect of tarjan)
+- cost aware
+
 - add spg_to_spd (tarjan)
 - add is_sp (side effect of tarjan)
 - extend testing for all algos

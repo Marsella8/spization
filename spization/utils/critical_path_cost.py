@@ -40,6 +40,8 @@ def critical_path_cost(
 def critical_path_cost(
     g: DiGraph, cost_map: dict[Node, Number] | None = None
 ) -> Number:
+    if g.number_of_nodes() == 0:
+        return 0
     assert nx.is_directed_acyclic_graph(g)
     if cost_map is None:
         cost_map = {node: 1 for node in g.nodes()}

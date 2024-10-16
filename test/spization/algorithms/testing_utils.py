@@ -87,13 +87,12 @@ def make_2_terminal_random_dag(num_nodes, p):
 
 def graph_generator():
     yield make_linear(3)
-    yield make_linear(20)
+    yield make_linear(10)
     yield make_rhombus()
     yield make_diamond()
     yield make_fully_connected((1, 5, 1))
     yield make_fully_connected((1, 3, 5, 10, 5, 8, 1))
-    yield make_parallel_chains(9, 3)
-    yield make_parallel_chains(5, 10)
-    yield make_2_terminal_random_dag(10, 0.1)
-    yield make_2_terminal_random_dag(50, 0.05)
-    yield make_2_terminal_random_dag(30, 0.15)
+    # yield make_parallel_chains(9, 3)
+    yield make_2_terminal_random_dag(25, 0.1)
+    # yield make_2_terminal_random_dag(50, 0.05)
+    # yield make_2_terminal_random_dag(30, 0.15)

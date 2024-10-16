@@ -21,6 +21,9 @@ class SyncNode:
         SyncNode._counter += 1
         self.id = SyncNode._counter
 
+    def __repr__(self) -> str:
+        return f"SyncNode({self.id})"
+
 
 class DummyNode:
     id: Any = field(init=False)
@@ -29,3 +32,6 @@ class DummyNode:
     def __init__(self) -> None:
         DummyNode._counter += 1
         self.id = DummyNode._counter
+
+    def __repr__(self) -> str:
+        return f"DummyNode({self.id})"
