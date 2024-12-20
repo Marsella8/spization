@@ -1,4 +1,5 @@
 import itertools
+import random
 
 import networkx as nx
 from networkx import DiGraph
@@ -19,7 +20,6 @@ def get_component(SP: DiGraph, node: Node) -> set[Node]:
     parents = set(SP.predecessors(node))
     children = set().union(*{SP.successors(p) for p in parents})
     other_parents = set().union(*{SP.predecessors(c) for c in children})
-    # other_other_parents = set().union(*{SP.predecessors(p) for p in other_parents if isinstance(p, SyncNode)})
     return parents | children | other_parents
 
 
@@ -36,19 +36,26 @@ def get_forest(SP: DiGraph, handle: Node, component: set[Node]) -> set[Node]:
 def get_up_and_down(
     main_node, SP: DiGraph, forest: set[Node], cost_map: dict[Node, float]
 ) -> tuple[set[Node], set[Node]]:
-    all_subsets = list(
-        itertools.chain.from_iterable(
-            itertools.combinations(forest, r) for r in range(len(forest) + 1)
-        )
-    )
-
     SP: DiGraph = ttspg_to_spg(SP)
 
+    base_up = {main_node}
+    base_down = {p for p in SP.predecessors(main_node) if p in forest}
+    assignable_nodes = forest - (base_up | base_down)
+
+    def random_subsets(assignable_nodes):
+        s = sorted(assignable_nodes)
+        while True:
+            r = random.randint(0, len(s))
+            subset = random.sample(s, r)
+            yield subset
+
     bipartitions = set()
-    for subset in all_subsets:
-        subset = set(subset)
-        complement = forest - subset
+    for subset in itertools.islice(random_subsets(assignable_nodes), 200_000):
+        subset = set(subset) | base_up  # up
+        complement = (assignable_nodes | base_down) - subset  # down
+        assert (subset & complement == set()) and (subset | complement == forest)
         bipartitions.add((frozenset(subset), frozenset(complement)))
+        bipartitions.add((frozenset(complement), frozenset(subset)))
 
     def is_valid_bipartition(up: set[Node], down: set[Node]) -> bool:
         if main_node not in down or len(down) == 0:
@@ -68,7 +75,7 @@ def get_up_and_down(
     ]
 
     if not valid_partitions:
-        return set(), set()
+        return None
 
     def partition_cost(partition: tuple[set[Node], set[Node]]) -> float:
         up, down = partition
@@ -77,7 +84,6 @@ def get_up_and_down(
         return up_cost + down_cost
 
     best_up, best_down = min(valid_partitions, key=partition_cost)
-    print(best_up, best_down)
     up_subgraph = SP.subgraph(best_up)
     up_frontier = {node for node in best_up if up_subgraph.out_degree(node) == 0}
 
@@ -142,7 +148,6 @@ def flexible_sync(
     SP.add_node(root)
     node = root
     for _ in range(g.number_of_nodes() - 1):
-        print(SP.edges)
         node = get_next_node(SP, g, cost_map)
         SP.add_node(node)
         SP.add_edges_from(g.in_edges(node))
@@ -151,11 +156,9 @@ def flexible_sync(
         component: set[Node] = get_component(SP, node)
         handle: Node = lowest_common_ancestor(SP, component)
         forest: set[Node] = get_forest(SP, handle, component)
-        print("FOREST", forest)
         up, down, up_frontier, down_frontier = get_up_and_down(
             node, SP, forest, cost_map
         )
-        print("UPDOWN", up, down)
         sync = SyncNode()
         cost_map[sync] = 0
         SP.remove_edges_from(edges_to_remove(SP, up, down))
@@ -177,7 +180,8 @@ def flexible_sync(
 
     SP = nx.transitive_reduction(SP)
     SP = ttspg_to_spg(SP)
+    SP = nx.transitive_reduction(SP)
     return SP
 
 
-# TODO IMPLEMENT the change where all the dependencies of a guy up in the tree are pushed down
+# TODO ? IMPLEMENT the change where all the dependencies of a guy up in the tree are pushed down

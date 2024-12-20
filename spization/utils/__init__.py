@@ -16,6 +16,11 @@ from .normalize import normalize
 from .sp_to_digraph import sp_to_digraph
 from .ttspg_to_spg import ttspg_to_spg
 from .work_cost import relative_work_cost_increase, work_cost
+from .cbc_decomposition import (
+    cbc_decomposition,
+    BipartiteComponent,
+    CompleteBipartiteCompositeDecomposition,
+)
 
 __all__ = [
     "sp_parallel_composition",
@@ -33,4 +38,7 @@ __all__ = [
     "work_cost",
     "relative_work_cost_increase",
     "ttspg_to_spg",
+    "cbc_decomposition",
+    "BipartiteComponent",
+    "CompleteBipartiteCompositeDecomposition",
 ]

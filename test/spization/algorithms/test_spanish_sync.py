@@ -1,5 +1,6 @@
 import networkx as nx
 from networkx import DiGraph
+from testing_utils import graph_generator
 
 from spization.algorithms import spanish_strata_sync
 from spization.utils import is_valid_sp
@@ -112,8 +113,7 @@ def test_spanish_strata_sync_graph_from_paper():
     assert is_valid_sp(input, result)
 
 
-# def test_correctness():
-#     for input in graph_generator():
-#         result = spanish_strata_sync(input)
-#         assert is_valid_sp(input, result)
-# TODO reactivate test
+def test_correctness():
+    for input in graph_generator():
+        result = spanish_strata_sync(input)
+        assert is_valid_sp(input, result)

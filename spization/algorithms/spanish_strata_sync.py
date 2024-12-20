@@ -49,20 +49,25 @@ def delete_dummy_nodes(g: DiGraph) -> DiGraph:
             c.remove_node(node)
     return c
 
-
-def get_component(SP: DiGraph, node: Node, depth_map: dict[Node, int]) -> set[Node]:
-    max_depth: int = max([depth_map[n] for n in SP.nodes() if isinstance(n, Node)])
-    SP_without_sync_nodes: DiGraph = ttspg_to_spg(SP)
-    last_two_layers: DiGraph = SP_without_sync_nodes.subgraph(
+def get_component(
+    SP: DiGraph, node: Node, depth_map: dict[Node, int], max_depth: int
+) -> set[Node]:
+    last_two_layers: DiGraph = SP.subgraph(
         [
             n
-            for n in SP_without_sync_nodes.nodes()
-            if depth_map[n] in (max_depth, max_depth - 1)
+            for n in SP.nodes()
+            if (depth_map.get(n) in (max_depth, max_depth - 1))
+            or (
+                isinstance(n, SyncNode)
+                and all(depth_map[s] == max_depth for s in SP.successors(n))
+            )
         ]
     )
+    # assert(all(not isinstance(n, SyncNode) for n in last_two_layers.nodes))
     component: set[Node] = get_only(
         [c for c in nx.weakly_connected_components(last_two_layers) if node in c]
     )
+    component = {n for n in component if not isinstance(n, SyncNode)}
     return component
 
 
@@ -95,10 +100,9 @@ def edges_to_remove(
     return to_remove
 
 
-def edges_to_add(
-    up: set[Node], down: set[Node], sync: SyncNode
-) -> set[tuple[Node | SyncNode, Node | SyncNode]]:
+def edges_to_add(up: set[Node], down: set[Node]) -> set[tuple[Node | SyncNode, Node | SyncNode]]:
     to_add: set[tuple[Node | SyncNode, Node | SyncNode]] = set()
+    sync = SyncNode()
     for u in up:
         to_add.add((u, sync))
     for d in down:
@@ -111,27 +115,23 @@ def spanish_strata_sync(g: DiGraph) -> DiGraph:
 
     g = add_dummy_nodes(g)
     depth_map: dict[Node, int] = longest_path_lengths_from_source(g)
-    SP = DiGraph()
     root: Node = get_only(sources(g))
+    SP = DiGraph()
     SP.add_node(root)
     for node in strata_sort(g):
         if node == root:
             continue
         SP.add_node(node)
         SP.add_edges_from(g.in_edges(node))
-        SP = nx.transitive_reduction(SP)
-        max_depth: int = max(
-            {d for n, d in depth_map.items() if n in SP.nodes() & g.nodes()}
-        )
+        max_depth: int = max({d for n, d in depth_map.items() if n in SP.nodes()})
 
-        component: set[Node] = get_component(SP, node, depth_map)
+        component: set[Node] = get_component(SP, node, depth_map, max_depth)
         handle: Node = lowest_common_ancestor(SP, component)
         forest: set[Node] = get_forest(SP, handle, component)
         up, down = get_up_and_down(forest, depth_map, max_depth)
 
-        sync = SyncNode()
         SP.remove_edges_from(edges_to_remove(SP, up, down))
-        SP.add_edges_from(edges_to_add(up, down, sync))
+        SP.add_edges_from(edges_to_add(up, down))
 
     SP = nx.transitive_reduction(delete_dummy_nodes(SP))
     SP = ttspg_to_spg(SP)

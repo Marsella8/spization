@@ -1,3 +1,4 @@
+from collections import deque
 from random import randint, random
 
 import networkx as nx
@@ -119,7 +120,147 @@ def make_random_nasbench_101() -> DiGraph:
     return net
 
 
-def make_taso_nasnet_a() -> DiGraph: ...
+def add_nodes(g: nx.DiGraph, n: int) -> list[int]:
+    """Add n nodes to the graph and return their indices."""
+    nodes = list(range(g.number_of_nodes(), g.number_of_nodes() + n))
+    g.add_nodes_from(nodes)
+    return nodes
 
 
-def make_efficient_net() -> DiGraph: ...
+def add_edges(g: nx.DiGraph, edges: list):
+    """Add edges to the graph."""
+    for edge in edges:
+        g.add_edge(edge[0], edge[1])
+
+
+def make_normal_taso_nasnet_cell() -> tuple[nx.DiGraph, int, int]:
+    g = nx.DiGraph()
+
+    inputs = add_nodes(g, 2)
+    sep = add_nodes(g, 5)
+    id_nodes = add_nodes(g, 2)
+    avg = add_nodes(g, 3)
+    add_nodes_list = add_nodes(g, 5)
+    concat = add_nodes(g, 1)
+
+    edges = [
+        (inputs[0], sep[1]),
+        (inputs[0], id_nodes[1]),
+        (inputs[0], avg[1]),
+        (inputs[0], avg[2]),
+        (inputs[0], sep[3]),
+        (inputs[0], sep[4]),
+        (inputs[1], sep[0]),
+        (inputs[1], id_nodes[0]),
+        (inputs[1], avg[0]),
+        (inputs[1], sep[2]),
+        (sep[0], add_nodes_list[0]),
+        (id_nodes[0], add_nodes_list[0]),
+        (sep[1], add_nodes_list[1]),
+        (sep[2], add_nodes_list[1]),
+        (avg[0], add_nodes_list[2]),
+        (id_nodes[1], add_nodes_list[2]),
+        (avg[1], add_nodes_list[3]),
+        (avg[2], add_nodes_list[3]),
+        (sep[3], add_nodes_list[4]),
+        (sep[4], add_nodes_list[4]),
+    ]
+    add_edges(g, edges)
+
+    for add_node in add_nodes_list:
+        g.add_edge(add_node, concat[0])
+
+    assert len(sinks(g)) == 1
+    assert len(sources(g)) == 2
+    assert nx.is_directed_acyclic_graph(g)
+
+    return g, inputs[0], inputs[1]
+
+
+def make_reduction_taso_nasnet_cell() -> tuple[nx.DiGraph, int, int]:
+    g = nx.DiGraph()
+
+    inputs = add_nodes(g, 2)
+    sep = add_nodes(g, 5)
+    id_nodes = add_nodes(g, 1)
+    avg = add_nodes(g, 2)
+    max_pool = add_nodes(g, 2)
+    add_nodes_list = add_nodes(g, 5)
+    concat = add_nodes(g, 1)
+
+    edges = [
+        (inputs[0], sep[0]),
+        (inputs[0], sep[2]),
+        (inputs[0], sep[3]),
+        (inputs[1], max_pool[1]),
+        (inputs[1], sep[1]),
+        (inputs[1], max_pool[0]),
+        (inputs[1], avg[0]),
+        (sep[0], add_nodes_list[0]),
+        (sep[1], add_nodes_list[0]),
+        (max_pool[0], add_nodes_list[1]),
+        (sep[2], add_nodes_list[1]),
+        (avg[0], add_nodes_list[2]),
+        (sep[3], add_nodes_list[2]),
+        (max_pool[1], add_nodes_list[3]),
+        (sep[4], add_nodes_list[3]),
+        (avg[1], add_nodes_list[4]),
+        (id_nodes[0], add_nodes_list[4]),
+        (add_nodes_list[0], sep[4]),
+        (add_nodes_list[0], avg[1]),
+        (add_nodes_list[1], id_nodes[0]),
+    ]
+    add_edges(g, edges)
+
+    for i in range(2, 5):
+        g.add_edge(add_nodes_list[i], concat[0])
+
+    assert len(sinks(g)) == 1
+    assert len(sources(g)) == 2
+    assert nx.is_directed_acyclic_graph(g)
+
+    return g, inputs[0], inputs[1]
+
+
+def make_taso_nasnet_a(num_reduction_cells: int = 2, N: int = 6) -> nx.DiGraph:
+    g = nx.DiGraph()
+    input_node = 0
+    g.add_node(input_node)
+
+    outputting = deque([input_node, input_node, input_node])
+    inputting = deque()
+
+    num_cells = num_reduction_cells + N * (num_reduction_cells + 1)
+
+    for i in range(num_cells):
+        if i % (N + 1) == N:
+            cell, earlier_input, later_input = make_reduction_taso_nasnet_cell()
+        else:
+            cell, earlier_input, later_input = make_normal_taso_nasnet_cell()
+
+        cell_output = get_only(sinks(cell))
+
+        offset = g.number_of_nodes()
+        mapping = {n: n + offset for n in cell.nodes()}
+        cell = nx.relabel_nodes(cell, mapping)
+        earlier_input = mapping[earlier_input]
+        later_input = mapping[later_input]
+        cell_output = mapping[cell_output]
+
+        g.add_nodes_from(cell.nodes())
+        g.add_edges_from(cell.edges())
+
+        outputting.append(cell_output)
+        outputting.append(cell_output)
+        inputting.append(earlier_input)
+        inputting.append(later_input)
+
+        for _ in range(2):
+            src = outputting.popleft()
+            dst = inputting.popleft()
+            g.add_edge(src, dst)
+
+        assert len(inputting) == 0
+        assert len(outputting) == 3
+    assert is_2_terminal_dag(g)
+    return g
