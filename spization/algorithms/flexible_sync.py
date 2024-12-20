@@ -34,7 +34,7 @@ def get_forest(SP: DiGraph, handle: Node, component: set[Node]) -> set[Node]:
 
 
 def get_up_and_down(
-    main_node, SP: DiGraph, forest: set[Node], cost_map: dict[Node, float]
+    main_node: Node, SP: DiGraph, forest: set[Node], cost_map: dict[Node, float]
 ) -> tuple[set[Node], set[Node]]:
     SP: DiGraph = ttspg_to_spg(SP)
 

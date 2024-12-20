@@ -49,6 +49,7 @@ def delete_dummy_nodes(g: DiGraph) -> DiGraph:
             c.remove_node(node)
     return c
 
+
 def get_component(
     SP: DiGraph, node: Node, depth_map: dict[Node, int], max_depth: int
 ) -> set[Node]:
@@ -100,7 +101,9 @@ def edges_to_remove(
     return to_remove
 
 
-def edges_to_add(up: set[Node], down: set[Node]) -> set[tuple[Node | SyncNode, Node | SyncNode]]:
+def edges_to_add(
+    up: set[Node], down: set[Node]
+) -> set[tuple[Node | SyncNode, Node | SyncNode]]:
     to_add: set[tuple[Node | SyncNode, Node | SyncNode]] = set()
     sync = SyncNode()
     for u in up:

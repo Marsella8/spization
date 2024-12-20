@@ -69,4 +69,6 @@ def cbc_decomposition(g: DiGraph) -> Optional[CompleteBipartiteCompositeDecompos
         return None
 
     return result
-#TODO: finish
+
+
+# TODO: finish

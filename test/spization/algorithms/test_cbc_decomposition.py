@@ -1,6 +1,7 @@
 import networkx as nx
 from spization.utils import cbc_decomposition, BipartiteComponent
 
+
 def test_six_node_diamond_graph():
     g = nx.DiGraph()
     nodes = list(range(6))
