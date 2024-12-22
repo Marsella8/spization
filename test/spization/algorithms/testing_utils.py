@@ -1,7 +1,6 @@
 import random
+
 import networkx as nx
-from collections import deque
-import numpy as np
 
 
 def make_linear(length):
@@ -156,10 +155,10 @@ def graph_generator():
     yield make_binary_dag(3)
     yield make_binary_dag(6)
 
-    for _ in range(5):
+    for _ in range(10):
         yield make_random_2_terminal_dag(random.randint(10, 30), random.random() ** 4)
 
-    for _ in range(5):
+    for _ in range(10):
         yield make_random_local_2_terminal_dag(
             random.randint(10, 30), random.random() ** 4, random.random() ** 3
         )

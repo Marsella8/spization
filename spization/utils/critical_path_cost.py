@@ -10,13 +10,11 @@ from spization.objects import (
     SerialParallelDecomposition,
 )
 
-Number = float | int
-
 
 @multimethod
 def critical_path_cost(
-    node: Node, cost_map: dict[Node, Number] | None = None
-) -> Number:
+    node: Node, cost_map: dict[Node, int | float] | None = None
+) -> int | float:
     if cost_map is None:
         return 1
     return cost_map[node]
@@ -24,22 +22,22 @@ def critical_path_cost(
 
 @multimethod
 def critical_path_cost(
-    parallel: Parallel, cost_map: dict[Node, Number] | None = None
-) -> Number:
+    parallel: Parallel, cost_map: dict[Node, int | float] | None = None
+) -> int | float:
     return max(critical_path_cost(child, cost_map) for child in parallel)
 
 
 @multimethod
 def critical_path_cost(
-    serial: Serial, cost_map: dict[Node, Number] | None = None
-) -> Number:
+    serial: Serial, cost_map: dict[Node, int | float] | None = None
+) -> int | float:
     return sum(critical_path_cost(child, cost_map) for child in serial)
 
 
 @multimethod
 def critical_path_cost(
-    g: DiGraph, cost_map: dict[Node, Number] | None = None
-) -> Number:
+    g: DiGraph, cost_map: dict[Node, int | float] | None = None
+) -> int | float:
     if g.number_of_nodes() == 0:
         return 0
     assert nx.is_directed_acyclic_graph(g)
@@ -58,8 +56,8 @@ def critical_path_cost(
 def relative_critical_path_cost_increase(
     original: DiGraph,
     modified: SerialParallelDecomposition,
-    cost_map: dict[Node, Number] | None = None,
-) -> Number:
+    cost_map: dict[Node, int | float] | None = None,
+) -> int | float:
     return critical_path_cost(modified, cost_map) / critical_path_cost(
         original, cost_map
     )
@@ -67,8 +65,10 @@ def relative_critical_path_cost_increase(
 
 @multimethod
 def relative_critical_path_cost_increase(
-    original: DiGraph, modified: DiGraph, cost_map: dict[Node, Number] | None = None
-) -> Number:
+    original: DiGraph,
+    modified: DiGraph,
+    cost_map: dict[Node, int | float] | None = None,
+) -> int | float:
     return critical_path_cost(modified, cost_map) / critical_path_cost(
         original, cost_map
     )

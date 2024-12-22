@@ -3,7 +3,6 @@ from multiset import Multiset
 
 from spization.objects import Node, Parallel, Serial
 
-
 @multimethod
 def get_nodes(parallel: Parallel) -> Multiset[Node]:
     return Multiset().combine(*[get_nodes(child) for child in parallel.children])

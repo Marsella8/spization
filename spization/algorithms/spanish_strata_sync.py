@@ -11,7 +11,7 @@ from spization.__internals.graph import (
     strata_sort,
 )
 from spization.objects import DummyNode, Node, SyncNode
-from spization.utils import ttspg_to_spg
+from spization.utils import get_serial_parallel_decomposition, ttspg_to_spg
 
 
 def add_dummy_nodes(g: DiGraph) -> DiGraph:
@@ -90,9 +90,12 @@ def get_up_and_down(
     return up, down
 
 
+# TODO make sure we have Node and Concrete Node when needed
+
+
 def edges_to_remove(
     SP: DiGraph, up: set[Node], down: set[Node]
-) -> set[tuple[Node | SyncNode, Node | SyncNode]]:
+) -> set[tuple[Node, Node]]:
     to_remove = set()
     for u in up:
         to_remove |= set(SP.out_edges(u))
@@ -101,10 +104,8 @@ def edges_to_remove(
     return to_remove
 
 
-def edges_to_add(
-    up: set[Node], down: set[Node]
-) -> set[tuple[Node | SyncNode, Node | SyncNode]]:
-    to_add: set[tuple[Node | SyncNode, Node | SyncNode]] = set()
+def edges_to_add(up: set[Node], down: set[Node]) -> set[tuple[Node, Node]]:
+    to_add: set[tuple[Node, Node]] = set()
     sync = SyncNode()
     for u in up:
         to_add.add((u, sync))
@@ -138,4 +139,7 @@ def spanish_strata_sync(g: DiGraph) -> DiGraph:
 
     SP = nx.transitive_reduction(delete_dummy_nodes(SP))
     SP = ttspg_to_spg(SP)
-    return SP
+    return get_serial_parallel_decomposition(SP)
+
+
+# TODO: how to get around the dummy nodes ?

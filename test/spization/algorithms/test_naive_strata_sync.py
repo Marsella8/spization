@@ -3,7 +3,7 @@ from testing_utils import graph_generator
 
 from spization.algorithms import naive_strata_sync
 from spization.objects import Parallel, Serial
-from spization.utils import is_valid_sp
+from spization.utils import dependencies_are_maintained
 
 
 def test_linear_graph():
@@ -16,4 +16,4 @@ def test_linear_graph():
 def test_correctness():
     for input in graph_generator():
         result = naive_strata_sync(input)
-        assert is_valid_sp(input, result)
+        assert dependencies_are_maintained(input, result)

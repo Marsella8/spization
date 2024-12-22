@@ -1,9 +1,10 @@
+from .edges import DiEdge, MultiDiEdge
 from .nodes import DummyNode, DupNode, Node, PureNode, SyncNode
 from .splits import Parallel, Serial, SerialParallelDecomposition
 
-nodes = splits = None
 del nodes
 del splits
+del edges
 
 __all__ = [
     "Node",
@@ -14,4 +15,6 @@ __all__ = [
     "Parallel",
     "SerialParallelDecomposition",
     "DummyNode",
+    "DiEdge",
+    "MultiDiEdge",
 ]

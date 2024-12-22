@@ -1,5 +1,6 @@
 from networkx import DiGraph
-from spization.algorithms import is_ttsp
+
+from spization.utils import is_ttsp
 
 
 def test_is_ttsp_base_case():
@@ -49,3 +50,6 @@ def test_is_ttsp_extended_rhombus():
     result = is_ttsp(g)
     correct = True
     assert result == correct
+
+
+# TODO add a check to make sure that IS_TTSP <=> get_series_parallel_decomposition is not None

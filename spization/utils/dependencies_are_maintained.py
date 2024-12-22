@@ -3,12 +3,12 @@ from networkx import DiGraph, ancestors
 
 from spization.objects import SerialParallelDecomposition
 
-from .ancestors import get_ancestors
+from .get_ancestors import get_ancestors
 from .get_nodes import get_nodes
 
 
 @multimethod
-def is_valid_sp(g: DiGraph, sp: SerialParallelDecomposition) -> bool:
+def dependencies_are_maintained(g: DiGraph, sp: SerialParallelDecomposition) -> bool:
     if set(g.nodes()) != get_nodes(sp):
         return False
     for node in get_nodes(sp):
@@ -18,7 +18,7 @@ def is_valid_sp(g: DiGraph, sp: SerialParallelDecomposition) -> bool:
 
 
 @multimethod
-def is_valid_sp(g: DiGraph, sp: DiGraph) -> bool:
+def dependencies_are_maintained(g: DiGraph, sp: DiGraph) -> bool:
     if set(g.nodes()) != set(sp.nodes()):
         return False
     for node in set(sp.nodes()):

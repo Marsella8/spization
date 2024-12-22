@@ -7,7 +7,7 @@
 
 # from spization.algorithms import flexible_sync
 # from spization.objects import Node
-# from spization.utils import is_valid_sp
+# from spization.utils import dependencies_are_maintained
 
 
 # def random_cost_map(nodes: set[Node]) -> Dict[Node, float]:
@@ -30,7 +30,7 @@
 #     cost_map = random_cost_map(set(input_graph.nodes))
 
 #     result = flexible_sync(input_graph, cost_map)
-#     assert is_valid_sp(input_graph, result)
+#     assert dependencies_are_maintained(input_graph, result)
 #     assert set(result.edges) == {(1, 2), (2, 3), (3, 4)}
 
 
@@ -39,7 +39,7 @@
 #     cost_map = {1: 1, 2: 1, 3: 10, 4: 10, 5: 1, 6: 1}
 #     result = flexible_sync(input_graph, cost_map)
 #     print(result.edges)
-#     assert is_valid_sp(input_graph, result)
+#     assert dependencies_are_maintained(input_graph, result)
 #     assert set(result.edges) == {(1, 2), (1, 3), (2, 4), (3, 5), (4, 5), (5, 6)}
 
 
@@ -50,7 +50,7 @@
 #     cost_map = {x: 1 for x in input_graph.nodes}
 
 #     result = flexible_sync(input_graph, cost_map)
-#     assert is_valid_sp(input_graph, result)
+#     assert dependencies_are_maintained(input_graph, result)
 #     assert set(result.edges) == {
 #         (1, 2),
 #         (1, 3),
@@ -74,7 +74,7 @@
 
 #     result = flexible_sync(input, cost_map)
 #     assert nx.utils.graphs_equal(correct, result)
-#     assert is_valid_sp(input, result)
+#     assert dependencies_are_maintained(input, result)
 
 
 # def test_flexible_sync_with_appendage():
@@ -114,7 +114,7 @@
 
 #     result = flexible_sync(input_graph, cost_map)
 #     assert nx.utils.graphs_equal(correct, result)
-#     assert is_valid_sp(input_graph, result)
+#     assert dependencies_are_maintained(input_graph, result)
 
 
 # def test_flexible_sync_with_appendage_weighted():
@@ -142,7 +142,7 @@
 
 #     result = flexible_sync(input_graph, cost_map)
 #     assert nx.utils.graphs_equal(correct, result)
-#     assert is_valid_sp(input_graph, result)
+#     assert dependencies_are_maintained(input_graph, result)
 
 
 # def test_flexible_sync_transitive_edge():
@@ -154,7 +154,7 @@
 #         [(1, 2), (1, 3), (2, 5), (3, 11), (3, 4), (5, 11), (5, 4), (4, 12), (11, 12)]
 #     )
 #     result = flexible_sync(input_graph, cost_map)
-#     assert is_valid_sp(input_graph, result)
+#     assert dependencies_are_maintained(input_graph, result)
 #     assert nx.utils.graphs_equal(correct, result)
 
 
@@ -192,7 +192,7 @@
 #     cost_map = random_cost_map(set(input_graph.nodes))
 
 #     result = flexible_sync(input_graph, cost_map)
-#     assert is_valid_sp(input_graph, result)
+#     assert dependencies_are_maintained(input_graph, result)
 
 
 # def test_correctness():
@@ -200,4 +200,4 @@
 #     for input in graph_generator():
 #         cost_map = random_cost_map(set(input.nodes))
 #         result = flexible_sync(input, cost_map)
-#         assert is_valid_sp(input, result)
+#         assert dependencies_are_maintained(input, result)

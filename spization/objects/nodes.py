@@ -10,7 +10,9 @@ class DupNode:
     dup_id: int
 
 
-Node = PureNode | DupNode
+# TODO define a better node hierarchy
+# Node is all nodes.
+# TODO add __Eq__ and things like that
 
 
 class SyncNode:
@@ -35,3 +37,6 @@ class DummyNode:
 
     def __repr__(self) -> str:
         return f"DummyNode({self.id})"
+
+
+Node = PureNode | DupNode | DummyNode | SyncNode

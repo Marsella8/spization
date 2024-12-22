@@ -1,13 +1,12 @@
-import networkx as nx
-from networkx import DiGraph
 from typing import Optional
-from spization.objects import Node
+
+from networkx import DiGraph
+
 from spization.__internals.general import get_only
+from spization.objects import DiEdge, Node
 
-Edge = tuple[Node, Node]
 
-
-def find_serial_split(g: DiGraph) -> Optional[tuple[Edge, Edge]]:
+def find_serial_split(g: DiGraph) -> Optional[tuple[DiEdge, DiEdge]]:
     for node in list(g.nodes()):
         if g.in_degree(node) == 1 and g.out_degree(node) == 1:
             incoming_edge = get_only(g.in_edges(node))

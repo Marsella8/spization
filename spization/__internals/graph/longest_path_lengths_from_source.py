@@ -25,8 +25,8 @@ def longest_path_lengths_from_source(g: DiGraph) -> dict[Node, int]:
 
 @multimethod
 def longest_path_lengths_from_source(
-    g: DiGraph, cost_map: dict[Node, float | int]
-) -> dict[Node, float | int]:
+    g: DiGraph, cost_map: dict[Node, int | float]
+) -> dict[Node, int | float]:
     assert is_single_sourced(g)
     dist: dict[Node, int] = dict.fromkeys(g.nodes, -1)
     root: Node = get_only(sources(g))

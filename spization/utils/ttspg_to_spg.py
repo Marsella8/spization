@@ -14,3 +14,6 @@ def ttspg_to_spg(g: DiGraph) -> DiGraph:
             c.remove_node(node)
 
     return c
+
+
+# TODO standardize the naming: SPG, TTSPG, SP, BSP (binary series parallel)

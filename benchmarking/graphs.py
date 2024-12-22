@@ -1,5 +1,6 @@
 from collections import deque
 from random import randint, random
+from typing import Iterable
 
 import networkx as nx
 import numpy as np
@@ -7,7 +8,7 @@ from networkx import DiGraph
 
 from spization.__internals.general import get_only
 from spization.__internals.graph import is_2_terminal_dag, sinks, sources
-from spization.objects import PureNode
+from spization.objects import DiEdge, PureNode
 from spization.utils import graph_serial_composition
 
 
@@ -120,6 +121,9 @@ def make_random_nasbench_101() -> DiGraph:
     return net
 
 
+# TODO put them into a centralized place (graph internals)
+
+
 def add_nodes(g: nx.DiGraph, n: int) -> list[int]:
     """Add n nodes to the graph and return their indices."""
     nodes = list(range(g.number_of_nodes(), g.number_of_nodes() + n))
@@ -127,7 +131,7 @@ def add_nodes(g: nx.DiGraph, n: int) -> list[int]:
     return nodes
 
 
-def add_edges(g: nx.DiGraph, edges: list):
+def add_edges(g: nx.DiGraph, edges: Iterable[DiEdge]):
     """Add edges to the graph."""
     for edge in edges:
         g.add_edge(edge[0], edge[1])
@@ -227,8 +231,8 @@ def make_taso_nasnet_a(num_reduction_cells: int = 2, N: int = 6) -> nx.DiGraph:
     input_node = 0
     g.add_node(input_node)
 
-    outputting = deque([input_node, input_node, input_node])
-    inputting = deque()
+    outputting: deque[PureNode] = deque([input_node, input_node, input_node])
+    inputting: deque[PureNode] = deque()
 
     num_cells = num_reduction_cells + N * (num_reduction_cells + 1)
 

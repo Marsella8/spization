@@ -2,7 +2,8 @@ from networkx import DiGraph
 
 from spization.algorithms import pure_node_dup, tree_pure_node_dup
 from spization.objects import Parallel, Serial
-
+from spization.utils import dependencies_are_maintained
+from testing_utils import graph_generator
 
 def test_tree_pure_node_dup():
     input = DiGraph([(1, 2), (1, 3), (2, 4), (2, 5), (3, 5), (4, 6), (5, 6)])
@@ -31,8 +32,8 @@ def test_pure_node_dup():
 # def test_correctness():
 #     for input in graph_generator():
 #         result = pure_node_dup(input)
-#         assert is_valid_sp(input, result)
+#         assert dependencies_are_maintained(input, result)
 
 #         result = tree_pure_node_dup(input)
-#         assert is_valid_sp(input, result)
-# Re-activate once is_valid_sp works for duplicate nodes
+#         assert dependencies_are_maintained(input, result)
+# TODO reenable after fixing dependencies_are_maintained for multiple nodes.

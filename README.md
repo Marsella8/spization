@@ -59,11 +59,10 @@ To enter the venv: `poetry shell`
 
 For testing: `pytest`
 
-For codecov: `pytest --cov=spization`
+For codecov: `pytest  --cov=spization --cov-report=term-missing:skip-covered`
 
-For linting: `ruff check`/`ruff format`
+For linting: `ruff check --fix`/`ruff format`
 
 For type checking: `mypy .`
 
 To run benchmarking: `benchmark`
- 
