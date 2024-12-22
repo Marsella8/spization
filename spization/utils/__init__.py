@@ -18,6 +18,8 @@ from .normalize import normalize
 from .sp_to_digraph import sp_to_digraph
 from .ttspg_to_spg import ttspg_to_spg
 from .work_cost import relative_work_cost_increase, work_cost
+from .random_sp import random_sp
+from .replace_node import replace_node
 
 del compositions
 
@@ -39,4 +41,6 @@ __all__ = [
     "ttspg_to_spg",
     "is_ttsp",
     "get_serial_parallel_decomposition",
+    "random_sp",
+    "replace_node"
 ]
