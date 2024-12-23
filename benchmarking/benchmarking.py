@@ -1,6 +1,7 @@
 import statistics
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass
+from typing import Callable
 
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -29,7 +30,7 @@ class BenchmarkResult:
 
 
 def run_single_benchmark(
-    benchmark_func, benchmark_name: str
+    benchmark_func: Callable, benchmark_name: str
 ) -> tuple[str, BenchmarkResult]:
     result = benchmark_func()
     return benchmark_name, result

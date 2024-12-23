@@ -142,10 +142,7 @@ def get_next_node(SP: DiGraph, g: DiGraph, cost_map: dict[Node, float]) -> Node:
     return min(critical_path_costs, key=critical_path_costs.get)
 
 
-def flexible_sync(
-    g: DiGraph,
-    cost_map: dict[Node, float],
-) -> DiGraph:
+def flexible_sync(g: DiGraph, cost_map: dict[Node, float]) -> DiGraph:
     assert is_2_terminal_dag(g) and is_compatible_graph(g)
     SP = DiGraph()
     cost_map = cost_map.copy()
@@ -186,7 +183,9 @@ def flexible_sync(
     SP = nx.transitive_reduction(SP)
     SP = ttspg_to_spg(SP)
     SP = nx.transitive_reduction(SP)
-    return get_serial_parallel_decomposition(SP)
+    decomp = get_serial_parallel_decomposition(SP)
+    assert decomp is not None
+    return decomp
 
 
 # TODO ? IMPLEMENT the change where all the dependencies of a guy up in the tree are pushed down

@@ -18,7 +18,7 @@ def get_random_node(sp: SerialParallelDecomposition) -> Node:
 
 def random_sp(num_nodes: int, prob_serial: float = 0.5) -> SerialParallelDecomposition:
     assert 0 <= prob_serial <= 1 and num_nodes > 0
-    sp = PureNode(0)
+    sp: SerialParallelDecomposition = PureNode(0)
     for node in range(1, num_nodes):
         node_to_sub = get_random_node(sp)
         n1, n2 = sample((node_to_sub, node), 2)  # For Serial

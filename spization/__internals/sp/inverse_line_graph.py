@@ -4,24 +4,14 @@ from typing import Optional
 from bidict import bidict
 from networkx import DiGraph, MultiDiGraph
 
-from spization.__internals.graph import sinks, sources
+from spization.__internals.graph import add_node, sinks, sources
 from spization.__internals.sp.cbc_decomposition import (
     BipartiteComponent,
     cbc_decomposition,
     get_component_containing_node_in_head,
     get_component_containing_node_in_tail,
 )
-from spization.objects import MultiDiEdge, Node, PureNode
-
-
-# TODO: move to where it should be
-def add_node(g: DiGraph) -> PureNode:
-    if not hasattr(g, "node_counter"):
-        g.node_counter = 1
-        return 0
-    n = g.node_counter
-    g.node_counter += 1
-    return n
+from spization.objects import MultiDiEdge, Node
 
 
 @dataclass
@@ -44,10 +34,14 @@ def inverse_line_graph(g: DiGraph) -> Optional[InverseLineGraphResult]:
     )
 
     def h(n: Node) -> BipartiteComponent:
-        return get_component_containing_node_in_head(cbc_decomp, n)
+        cmp = get_component_containing_node_in_head(cbc_decomp, n)
+        assert cmp is not None
+        return cmp
 
     def t(n: Node) -> BipartiteComponent:
-        return get_component_containing_node_in_tail(cbc_decomp, n)
+        cmp = get_component_containing_node_in_tail(cbc_decomp, n)
+        assert cmp is not None
+        return cmp
 
     srcs = sources(g)
     snks = sinks(g)

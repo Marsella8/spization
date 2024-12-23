@@ -80,7 +80,9 @@ def get_serial_parallel_decomposition(
     if inverse_line_graph_result is None:
         return None
     ttsp: MultiDiGraph = inverse_line_graph_result.graph
-    ttsp_edge_to_sp_tree = inverse_line_graph_result.inverse_edge_to_line_node_map
+    ttsp_edge_to_sp_tree: bidict[MultiDiEdge, Node] = (
+        inverse_line_graph_result.inverse_edge_to_line_node_map
+    )
     while True:
         parallel_reduction = find_parallel_reduction(ttsp)
         if parallel_reduction:

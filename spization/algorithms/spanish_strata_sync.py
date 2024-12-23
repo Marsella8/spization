@@ -139,7 +139,9 @@ def spanish_strata_sync(g: DiGraph) -> SerialParallelDecomposition:
 
     SP = nx.transitive_reduction(delete_dummy_nodes(SP))
     SP = ttspg_to_spg(SP)
-    return get_serial_parallel_decomposition(SP)
+    decomp: SerialParallelDecomposition | None = get_serial_parallel_decomposition(SP)
+    assert decomp is not None
+    return decomp
 
 
 # TODO: how to get around the dummy nodes ?

@@ -30,7 +30,7 @@ def is_ttsp(g: DiGraph) -> bool:
     while True:
         maybe_serial_split = find_serial_split(reduced_graph)
         if maybe_serial_split is not None:
-            (u, v), (w, x) = maybe_serial_split
+            (u, v), (v, x) = maybe_serial_split
             intermediate_node = v
             reduced_graph.remove_node(intermediate_node)
             reduced_graph.add_edge(u, x)
