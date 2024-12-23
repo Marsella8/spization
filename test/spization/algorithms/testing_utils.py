@@ -79,7 +79,6 @@ def make_binary_dag(depth):
         if right_child < num_nodes_without_sink:
             G.add_edge(i, right_child)
 
-    # Connect leaf nodes to the sink
     for leaf in range((num_nodes_without_sink - 1) // 2, num_nodes_without_sink):
         G.add_edge(leaf, sink_node)
 
@@ -99,12 +98,10 @@ def make_random_2_terminal_dag(num_nodes: int, p: float) -> nx.DiGraph:
     source = 0
     sink = num_nodes - 1
 
-    # Ensure all sources except the actual source connect to it
     for node in range(1, num_nodes):
         if g.in_degree(node) == 0 and node != source:
             g.add_edge(source, node)
 
-    # Ensure all sinks except the actual sink connect to it
     for node in range(num_nodes - 1):
         if g.out_degree(node) == 0 and node != sink:
             g.add_edge(node, sink)
@@ -130,12 +127,10 @@ def make_random_local_2_terminal_dag(
     source = 0
     sink = num_nodes - 1
 
-    # Ensure all sources except the actual source connect to it
     for node in range(1, num_nodes):
         if g.in_degree(node) == 0 and node != source:
             g.add_edge(source, node)
 
-    # Ensure all sinks except the actual sink connect to it
     for node in range(num_nodes - 1):
         if g.out_degree(node) == 0 and node != sink:
             g.add_edge(node, sink)
@@ -144,7 +139,6 @@ def make_random_local_2_terminal_dag(
 
 
 def graph_generator():
-    # Existing DAG graphs
     yield make_linear(3)
     yield make_linear(10)
     yield make_rhombus()
@@ -155,10 +149,10 @@ def graph_generator():
     yield make_binary_dag(3)
     yield make_binary_dag(6)
 
-    for _ in range(10):
-        yield make_random_2_terminal_dag(random.randint(10, 30), random.random() ** 4)
+    for _ in range(50):
+        yield make_random_2_terminal_dag(random.randint(5, 100), random.random() ** 2)
 
-    for _ in range(10):
+    for _ in range(50):
         yield make_random_local_2_terminal_dag(
-            random.randint(10, 30), random.random() ** 4, random.random() ** 3
+            random.randint(5, 100), random.random() ** 2, random.random() ** 2
         )

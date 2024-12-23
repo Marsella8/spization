@@ -1,84 +1,84 @@
-# import random
-# from typing import Dict
+import random
 
-# import networkx as nx
-# from networkx import DiGraph
-# from testing_utils import graph_generator
+from networkx import DiGraph
 
-# from spization.algorithms import flexible_sync
-# from spization.objects import Node
-# from spization.utils import dependencies_are_maintained
+from spization.algorithms import flexible_sync
+from spization.objects import Node, Parallel, Serial
+from spization.utils import dependencies_are_maintained
 
 
-# def random_cost_map(nodes: set[Node]) -> Dict[Node, float]:
-#     return {node: random.choice([1, 3, 5]) for node in nodes}
+def random_cost_map(nodes: set[Node]) -> dict[Node, float]:
+    return {node: random.choice([1, 3, 5]) for node in nodes}
 
 
-# def print_edges(G):
-#     dot_rep = "digraph G {\n"
-
-#     for u, v in G.edges():
-#         dot_rep += f'\t"{u}" -> "{v}";\n'
-
-#     dot_rep += "}\n"
-
-#     print(dot_rep)
+def constant_cost_map(nodes: set[Node]) -> dict[Node, float]:
+    return {node: 1 for node in nodes}
 
 
-# def test_flexible_sync_linear():
-#     input_graph = DiGraph([(1, 2), (2, 3), (3, 4)])
-#     cost_map = random_cost_map(set(input_graph.nodes))
+# TODO put in internals graphs
+def print_edges(G):
+    dot_rep = "digraph G {\n"
 
-#     result = flexible_sync(input_graph, cost_map)
-#     assert dependencies_are_maintained(input_graph, result)
-#     assert set(result.edges) == {(1, 2), (2, 3), (3, 4)}
+    for u, v in G.edges():
+        dot_rep += f'\t"{u}" -> "{v}";\n'
 
+    dot_rep += "}\n"
 
-# def test_flexible_sync_simple():
-#     input_graph = DiGraph([(1, 2), (1, 3), (2, 4), (2, 5), (3, 5), (4, 6), (5, 6)])
-#     cost_map = {1: 1, 2: 1, 3: 10, 4: 10, 5: 1, 6: 1}
-#     result = flexible_sync(input_graph, cost_map)
-#     print(result.edges)
-#     assert dependencies_are_maintained(input_graph, result)
-#     assert set(result.edges) == {(1, 2), (1, 3), (2, 4), (3, 5), (4, 5), (5, 6)}
+    print(dot_rep)
 
 
-# def test_flexible_sync_with_parallel_strand():
-#     input_graph = DiGraph(
-#         [(1, 2), (1, 3), (2, 4), (3, 5), (4, 6), (5, 7), (6, 8), (7, 8)]
-#     )
-#     cost_map = {x: 1 for x in input_graph.nodes}
+def test_flexible_sync_linear():
+    input = DiGraph([(1, 2), (2, 3), (3, 4)])
+    cost_map = constant_cost_map({1, 2, 3, 4})
 
-#     result = flexible_sync(input_graph, cost_map)
-#     assert dependencies_are_maintained(input_graph, result)
-#     assert set(result.edges) == {
-#         (1, 2),
-#         (1, 3),
-#         (2, 4),
-#         (3, 5),
-#         (4, 6),
-#         (5, 7),
-#         (6, 8),
-#         (7, 8),
-#     }
+    result = flexible_sync(input, cost_map)
+    correct = Serial((1, 2, 3, 4))
+
+    assert result == correct
+    assert dependencies_are_maintained(input, result)
 
 
-# def test_spanish_strata_sync_simple_with_parallel_strand():
-#     input = DiGraph(
-#         [(1, 2), (1, 3), (2, 4), (2, 5), (3, 5), (4, 6), (5, 6), (1, 7), (7, 6)]
-#     )
-#     correct = DiGraph([(1, 2), (1, 3), (2, 4), (4, 5), (3, 5), (5, 6), (1, 7), (7, 6)])
-#     cost_map = {x: 1 for x in input.nodes}
-#     cost_map[3] = 100
-#     cost_map[4] = 100
+def test_flexible_sync_6_node_diamond_graph():
+    input = DiGraph([(1, 2), (1, 3), (2, 4), (2, 5), (3, 5), (4, 6), (5, 6)])
+    cost_map = constant_cost_map(input.nodes)
+    cost_map[3] = 100
+    cost_map[4] = 100
 
-#     result = flexible_sync(input, cost_map)
-#     assert nx.utils.graphs_equal(correct, result)
-#     assert dependencies_are_maintained(input, result)
+    result = flexible_sync(input, cost_map)
+    correct = Serial((1, Parallel((Serial((2, 4)), 3)), 5, 6))
+
+    assert correct == result
+    assert dependencies_are_maintained(input, result)
+
+
+def test_flexible_sync_with_parallel_strand():
+    input = DiGraph(((1, 2), (1, 3), (2, 4), (3, 5), (4, 6), (5, 7), (6, 8), (7, 8)))
+    cost_map = constant_cost_map(input.nodes)
+
+    result = flexible_sync(input, cost_map)
+    correct = Serial((1, Parallel((Serial((2, 4, 6)), Serial((3, 5, 7)))), 8))
+
+    assert result == correct
+    assert dependencies_are_maintained(input, result)
+
+
+def test_spanish_strata_sync_simple_with_parallel_strand():
+    input = DiGraph(
+        ((1, 2), (1, 3), (2, 4), (2, 5), (3, 5), (4, 7), (5, 7), (1, 6), (6, 7))
+    )
+    cost_map = constant_cost_map(input.nodes)
+    cost_map[3] = 100
+    cost_map[4] = 100
+
+    result = flexible_sync(input, cost_map)
+    correct = Serial((1, Parallel((Serial((Parallel((Serial((2, 4)), 3)), 5)), 6)), 7))
+    print(correct == result)
+    assert result == correct
+    assert dependencies_are_maintained(input, result)
 
 
 # def test_flexible_sync_with_appendage():
-#     input_graph = DiGraph(
+#     input = DiGraph(
 #         [
 #             (1, 2),
 #             (1, 3),
@@ -110,15 +110,15 @@
 #             (8, 6),
 #         ]
 #     )
-#     cost_map = {n: 1 for n in input_graph.nodes}
+#     cost_map = {n: 1 for n in input.nodes}
 
-#     result = flexible_sync(input_graph, cost_map)
+#     result = flexible_sync(input, cost_map)
 #     assert nx.utils.graphs_equal(correct, result)
-#     assert dependencies_are_maintained(input_graph, result)
+#     assert dependencies_are_maintained(input, result)
 
 
 # def test_flexible_sync_with_appendage_weighted():
-#     input_graph = DiGraph(
+#     input = DiGraph(
 #         [
 #             (1, 2),
 #             (1, 3),
@@ -136,30 +136,30 @@
 #     correct = DiGraph(
 #         [(1, 3), (1, 7), (2, 4), (2, 5), (3, 2), (3, 8), (4, 6), (5, 6), (8, 6), (7, 6)]
 #     )
-#     cost_map = {n: 1 for n in input_graph.nodes}
+#     cost_map = {n: 1 for n in input.nodes}
 #     cost_map[2] = 100
 #     cost_map[8] = 100
 
-#     result = flexible_sync(input_graph, cost_map)
+#     result = flexible_sync(input, cost_map)
 #     assert nx.utils.graphs_equal(correct, result)
-#     assert dependencies_are_maintained(input_graph, result)
+#     assert dependencies_are_maintained(input, result)
 
 
 # def test_flexible_sync_transitive_edge():
-#     input_graph = DiGraph(
+#     input = DiGraph(
 #         ((1, 2), (1, 3), (2, 4), (2, 5), (3, 11), (4, 12), (5, 11), (11, 12))
 #     )
 #     cost_map = {1: 1, 2: 1, 3: 1, 4: 10, 5: 1, 11: 10, 12: 1}
 #     correct = DiGraph(
 #         [(1, 2), (1, 3), (2, 5), (3, 11), (3, 4), (5, 11), (5, 4), (4, 12), (11, 12)]
 #     )
-#     result = flexible_sync(input_graph, cost_map)
-#     assert dependencies_are_maintained(input_graph, result)
+#     result = flexible_sync(input, cost_map)
+#     assert dependencies_are_maintained(input, result)
 #     assert nx.utils.graphs_equal(correct, result)
 
 
 # def test_flexible_sync_graph_from_paper():
-#     input_graph = DiGraph(
+#     input = DiGraph(
 #         (
 #             (1, 2),
 #             (1, 3),
@@ -189,15 +189,16 @@
 #             (17, 18),
 #         )
 #     )
-#     cost_map = random_cost_map(set(input_graph.nodes))
+#     cost_map = random_cost_map(set(input.nodes))
 
-#     result = flexible_sync(input_graph, cost_map)
-#     assert dependencies_are_maintained(input_graph, result)
+#     result = flexible_sync(input, cost_map)
+#     assert dependencies_are_maintained(input, result)
 
 
 # def test_correctness():
-#     return
 #     for input in graph_generator():
 #         cost_map = random_cost_map(set(input.nodes))
 #         result = flexible_sync(input, cost_map)
 #         assert dependencies_are_maintained(input, result)
+
+# TODO do a shit ton of property testing.

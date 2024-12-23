@@ -10,7 +10,7 @@ from spization.__internals.graph import (
     sources,
     strata_sort,
 )
-from spization.objects import DummyNode, Node, SyncNode
+from spization.objects import DummyNode, Node, SerialParallelDecomposition, SyncNode
 from spization.utils import get_serial_parallel_decomposition, ttspg_to_spg
 
 
@@ -114,9 +114,9 @@ def edges_to_add(up: set[Node], down: set[Node]) -> set[tuple[Node, Node]]:
     return to_add
 
 
-def spanish_strata_sync(g: DiGraph) -> DiGraph:
+def spanish_strata_sync(g: DiGraph) -> SerialParallelDecomposition:
     assert is_2_terminal_dag(g) and is_compatible_graph(g)
-
+    g = nx.transitive_reduction(g)
     g = add_dummy_nodes(g)
     depth_map: dict[Node, int] = longest_path_lengths_from_source(g)
     root: Node = get_only(sources(g))
@@ -143,3 +143,4 @@ def spanish_strata_sync(g: DiGraph) -> DiGraph:
 
 
 # TODO: how to get around the dummy nodes ?
+# TODO: check does changing around the order in which we parse the strata change the final result?

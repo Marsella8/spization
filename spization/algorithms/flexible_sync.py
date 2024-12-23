@@ -13,7 +13,11 @@ from spization.__internals.graph import (
     sources,
 )
 from spization.objects import Node, SyncNode
-from spization.utils import critical_path_cost, ttspg_to_spg
+from spization.utils import (
+    critical_path_cost,
+    get_serial_parallel_decomposition,
+    ttspg_to_spg,
+)
 
 
 def get_component(SP: DiGraph, node: Node) -> set[Node]:
@@ -139,7 +143,8 @@ def get_next_node(SP: DiGraph, g: DiGraph, cost_map: dict[Node, float]) -> Node:
 
 
 def flexible_sync(
-    g: DiGraph, cost_map: dict[Node, float], return_ttsp=False
+    g: DiGraph,
+    cost_map: dict[Node, float],
 ) -> DiGraph:
     assert is_2_terminal_dag(g) and is_compatible_graph(g)
     SP = DiGraph()
@@ -181,7 +186,7 @@ def flexible_sync(
     SP = nx.transitive_reduction(SP)
     SP = ttspg_to_spg(SP)
     SP = nx.transitive_reduction(SP)
-    return SP
+    return get_serial_parallel_decomposition(SP)
 
 
 # TODO ? IMPLEMENT the change where all the dependencies of a guy up in the tree are pushed down

@@ -41,11 +41,9 @@ def test_diamond_graph():
          -
     """
     g = nx.DiGraph()
-    # Add nodes 0 through 4
     nodes = list(range(5))
     g.add_nodes_from(nodes)
 
-    # Add edges following the diamond pattern
     edges = [(0, 1), (0, 2), (1, 3), (3, 4), (2, 4)]
     g.add_edges_from(edges)
 
@@ -53,13 +51,10 @@ def test_diamond_graph():
     assert maybe_result is not None
     result = maybe_result
 
-    # Check number of nodes
     assert len(result.graph.nodes()) == 5
 
-    # Get topological ordering of result graph
     inv = list(nx.topological_sort(result.graph))
 
-    # Check edges
     result_edges = get_edge_counts(result.graph)
     correct_edges = {
         (inv[0], inv[1]): 1,
@@ -70,7 +65,6 @@ def test_diamond_graph():
     }
     assert result_edges == correct_edges
 
-    # Check node to edge mapping
     result_bidict = get_directed_edges_map(result)
     correct_bidict = {
         nodes[0]: (inv[0], inv[1]),
@@ -99,18 +93,14 @@ def test_duplicate_edges():
     assert maybe_result is not None
     result = maybe_result
 
-    # Check number of nodes
     assert len(result.graph.nodes()) == 2
 
-    # Get topological ordering
     inv = list(nx.topological_sort(result.graph))
 
-    # Check edges
     result_edges = get_edge_counts(result.graph)
     correct_edges = {(inv[0], inv[1]): 2}
     assert result_edges == correct_edges
 
-    # Check node to edge mapping
     result_bidict = get_directed_edges_map(result)
     correct_bidict = {nodes[0]: (inv[0], inv[1]), nodes[1]: (inv[0], inv[1])}
     assert result_bidict == correct_bidict
@@ -131,7 +121,6 @@ def test_sp_n_graph():
     edges = [(0, 2), (1, 2), (1, 3)]
     g.add_edges_from(edges)
 
-    # Get transitive reduction first
     reduced_g = nx.transitive_reduction(g)
 
     result = inverse_line_graph(reduced_g)

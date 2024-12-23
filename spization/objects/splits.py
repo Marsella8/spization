@@ -2,20 +2,20 @@ from dataclasses import dataclass
 from typing import Iterator, Union
 
 from multimethod import multimethod
-from multiset import Multiset
+from multiset import FrozenMultiset
 
 from .nodes import Node
 
 
 @dataclass(slots=True)
 class Parallel:
-    children: Multiset[Union["Serial", Node]]
+    children: FrozenMultiset[Union["Serial", Node]]
 
     def __post_init__(self) -> None:
-        self.children = Multiset(self.children)
+        self.children = FrozenMultiset(self.children)
 
     def __hash__(self) -> int:
-        return hash(tuple(self.children))
+        return sum((hash(child) for child in self.children))
 
     def __str__(self) -> str:
         return f"P{tuple(self.children)}"
@@ -32,10 +32,10 @@ class Parallel:
 
 @dataclass(slots=True)
 class Serial:
-    children: list[Union["Parallel", Node]]
+    children: tuple[Union["Parallel", Node]]
 
     def __post_init__(self) -> None:
-        self.children = list(self.children)
+        self.children = tuple(self.children)
 
     def __hash__(self) -> int:
         return hash(tuple(self.children))
@@ -62,3 +62,14 @@ class Serial:
 
 
 SerialParallelDecomposition = Union[Serial, Parallel, Node]
+
+
+def S(*children) -> Serial:
+    return Serial(children)
+
+
+def P(*children) -> Parallel:
+    return Parallel(children)
+
+
+# TODO: have nice formatting for long SP strings
