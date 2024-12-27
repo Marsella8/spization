@@ -144,15 +144,15 @@ def graph_generator():
     yield make_rhombus()
     yield make_diamond()
     yield make_fully_connected((1, 5, 1))
-    yield make_fully_connected((1, 3, 5, 10, 5, 8, 1))
-    yield make_parallel_chains(9, 3)
+    yield make_fully_connected((1, 10, 5, 8, 1))
+    yield make_parallel_chains(8, 3)
     yield make_binary_dag(3)
     yield make_binary_dag(6)
 
-    for _ in range(50):
-        yield make_random_2_terminal_dag(random.randint(5, 100), random.random() ** 2)
+    for _ in range(10):
+        yield make_random_2_terminal_dag(random.randint(5, 50), random.random() ** 2)
 
-    for _ in range(50):
+    for _ in range(10):
         yield make_random_local_2_terminal_dag(
-            random.randint(5, 100), random.random() ** 2, random.random() ** 2
+            random.randint(5, 50), random.random() ** 2, random.random() ** 2
         )

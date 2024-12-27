@@ -6,24 +6,24 @@ from networkx import DiGraph
 
 from spization.__internals.general import get_only
 from spization.__internals.graph import (
-    is_2_terminal_dag,
     is_compatible_graph,
+    is_single_sourced,
     longest_path_lengths_from_source,
     lowest_common_ancestor,
     sources,
 )
-from spization.objects import Node, SyncNode
+from spization.objects import Node, PureNode, SyncNode
 from spization.utils import (
     critical_path_cost,
-    get_serial_parallel_decomposition,
+    spg_to_sp,
     ttspg_to_spg,
 )
 
 
 def get_component(SP: DiGraph, node: Node) -> set[Node]:
     parents = set(SP.predecessors(node))
-    children = set().union(*{SP.successors(p) for p in parents})
-    other_parents = set().union(*{SP.predecessors(c) for c in children})
+    children = set().union(*[nx.descendants(SP, p) for p in parents])
+    other_parents = set().union(*[SP.predecessors(c) for c in children])
     return parents | children | other_parents
 
 
@@ -33,7 +33,7 @@ def get_forest(SP: DiGraph, handle: Node, component: set[Node]) -> set[Node]:
     ]
     subtrees = [subtree for subtree in subtrees if subtree & component]
     forest = set().union(*subtrees) | {handle}
-    forest = {node for node in forest if not isinstance(node, SyncNode)}
+    forest = {node for node in forest if isinstance(node, PureNode)}
     return forest
 
 
@@ -43,7 +43,8 @@ def get_up_and_down(
     SP: DiGraph = ttspg_to_spg(SP)
 
     base_up = {main_node}
-    base_down = {p for p in SP.predecessors(main_node) if p in forest}
+    base_down = set(SP.predecessors(main_node))
+    assert all(p in forest for p in base_down)
     assignable_nodes = forest - (base_up | base_down)
 
     def random_subsets(assignable_nodes):
@@ -54,7 +55,7 @@ def get_up_and_down(
             yield subset
 
     bipartitions = set()
-    for subset in itertools.islice(random_subsets(assignable_nodes), 200_000):
+    for subset in itertools.islice(random_subsets(assignable_nodes), 10000):
         subset = set(subset) | base_up  # up
         complement = (assignable_nodes | base_down) - subset  # down
         assert (subset & complement == set()) and (subset | complement == forest)
@@ -62,7 +63,7 @@ def get_up_and_down(
         bipartitions.add((frozenset(complement), frozenset(subset)))
 
     def is_valid_bipartition(up: set[Node], down: set[Node]) -> bool:
-        if main_node not in down or len(down) == 0:
+        if main_node not in down:
             return False
 
         for node in SP.nodes():
@@ -78,14 +79,13 @@ def get_up_and_down(
         (up, down) for up, down in bipartitions if is_valid_bipartition(up, down)
     ]
 
-    if not valid_partitions:
-        return None
+    assert valid_partitions
 
     def partition_cost(partition: tuple[set[Node], set[Node]]) -> float:
         up, down = partition
         up_cost = critical_path_cost(SP.subgraph(up), cost_map)
         down_cost = critical_path_cost(SP.subgraph(down), cost_map)
-        return up_cost + down_cost
+        return (up_cost + down_cost, down_cost, len(down))
 
     best_up, best_down = min(valid_partitions, key=partition_cost)
     up_subgraph = SP.subgraph(best_up)
@@ -105,6 +105,13 @@ def edges_to_remove(
         for v in SP.successors(u):
             if v in down:
                 to_remove.add((u, v))
+    for node in list(SP.nodes()):
+        if (
+            isinstance(node, SyncNode)
+            and all(p in up for p in SP.predecessors(node))
+            and all(s in down for s in SP.successors(node))
+        ):
+            SP.remove_node(node)
     return to_remove
 
 
@@ -122,28 +129,30 @@ def edges_to_add(
 def get_next_node(SP: DiGraph, g: DiGraph, cost_map: dict[Node, float]) -> Node:
     sp_longest_paths = longest_path_lengths_from_source(SP, cost_map)
 
-    candidate_nodes = [
+    candidate_nodes: set[Node] = {
         node
         for node in g.nodes()
         if node not in SP.nodes()
         and all(parent in SP.nodes() for parent in g.predecessors(node))
-    ]
+    }
 
-    if not candidate_nodes:
-        raise ValueError("No candidate nodes found in g with all parents in SP")
+    assert candidate_nodes
 
     critical_path_costs = {}
     for node in candidate_nodes:
-        parent_costs = [sp_longest_paths[parent] for parent in g.predecessors(node)]
-        critical_path_costs[node] = cost_map[node] + (
-            max(parent_costs) if parent_costs else 0
-        )
+        parent_costs = {sp_longest_paths[parent] for parent in g.predecessors(node)}
+        critical_path_costs[node] = cost_map[node] + max(parent_costs)
 
-    return min(critical_path_costs, key=critical_path_costs.get)
+    return min(
+        critical_path_costs.keys(),
+        key=lambda node: (critical_path_costs.get(node), node),
+    )  # split ties with smallest node, for testing purposes
 
 
+# TODO: remove in_single_sourced restruiction by adding dummy node
 def flexible_sync(g: DiGraph, cost_map: dict[Node, float]) -> DiGraph:
-    assert is_2_terminal_dag(g) and is_compatible_graph(g)
+    assert is_single_sourced(g) and is_compatible_graph(g)
+    g = nx.transitive_reduction(g)
     SP = DiGraph()
     cost_map = cost_map.copy()
     root: Node = get_only(sources(g))
@@ -153,7 +162,6 @@ def flexible_sync(g: DiGraph, cost_map: dict[Node, float]) -> DiGraph:
         node = get_next_node(SP, g, cost_map)
         SP.add_node(node)
         SP.add_edges_from(g.in_edges(node))
-        SP = nx.transitive_reduction(SP)
 
         component: set[Node] = get_component(SP, node)
         handle: Node = lowest_common_ancestor(SP, component)
@@ -161,29 +169,16 @@ def flexible_sync(g: DiGraph, cost_map: dict[Node, float]) -> DiGraph:
         up, down, up_frontier, down_frontier = get_up_and_down(
             node, SP, forest, cost_map
         )
+        # print(f"{component=}")
+        # print(f"{handle=}")
+        # print(f"{forest=}")
+        # print(f"{up=}, {down=}")
         sync = SyncNode()
         cost_map[sync] = 0
         SP.remove_edges_from(edges_to_remove(SP, up, down))
         SP.add_edges_from(edges_to_add(up_frontier, down_frontier, sync))
-        for node in list(SP.nodes):
-            if isinstance(node, SyncNode) and SP.in_degree(node) == 0:
-                SP.remove_node(node)
-        for sync_node in list(SP.nodes):
-            if isinstance(sync_node, SyncNode):
-                in_edges = list(SP.in_edges(sync_node))
-                out_edges = list(SP.out_edges(sync_node))
-
-                if len(in_edges) == 1 and len(out_edges) == 1:
-                    pred = in_edges[0][0]
-                    succ = out_edges[0][1]
-
-                    SP.remove_node(sync_node)
-                    SP.add_edge(pred, succ)
-
-    SP = nx.transitive_reduction(SP)
     SP = ttspg_to_spg(SP)
-    SP = nx.transitive_reduction(SP)
-    decomp = get_serial_parallel_decomposition(SP)
+    decomp = spg_to_sp(SP)
     assert decomp is not None
     return decomp
 

@@ -18,40 +18,12 @@ Your graph: sync nodes, cannot be dups
 
 ## TODO:
 
-Main:
-  add spg_to_spd (tarjan)
-- add is_sp (side effect of tarjan)
-- cost aware
-
-- add spg_to_spd (tarjan)
-- add is_sp (side effect of tarjan)
-- extend testing for all algos
-- Implement cost aware spanish algo
-- Reorg test files
-- Change layout so that we have .objects, .algorithms, and .utils, and _internals, and then use the hacky trick to delete it from being viewed.
-- Implement Taso NasNet-A
-- Add Effiicient-NET or some other architecture
-- INCREMENT TEST COVERAGE
-- Test that the Spanish algo maintains SPness if the input dag is already SP.
-- Check that assumptions about SP are actually respected in the various utils functions
-- Check that the utils handle duplicate nodes as they should (e.g. get_nodes should returns a multiset?)
-- implement duplicate, unduplicate (should ideally only be used internally)
-- make_random_spd(nodes, p_of_parallel)
 - Have in the algo_utils, rapidcheck style property checkers:
     - is_valid_spization
     - sp remains sp
     - transitive reduction leaves it unchanged
     - algorithm A is strictly better than B
-- Add spd_to_ttspg
-- Finish Benchmarking
-    - Run it on the 4 models and have bar charts
-    - Run it on the 3 graph types, make bar plots
 - Add the diagram with the various classes
-- try fix sp vs graph composition
-- add util function to print graphs
-
-Current:
-- Add cost aware spization
 
 ## Instructions
 

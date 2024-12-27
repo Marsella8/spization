@@ -125,9 +125,6 @@ def make_random_nasbench_101() -> DiGraph:
     return net
 
 
-# TODO put them into a centralized place (graph internals)
-
-
 def make_normal_taso_nasnet_cell() -> tuple[nx.DiGraph, PureNode, PureNode]:
     g = nx.DiGraph()
 

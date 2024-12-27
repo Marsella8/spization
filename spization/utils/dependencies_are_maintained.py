@@ -5,10 +5,12 @@ from spization.objects import SerialParallelDecomposition
 
 from .get_ancestors import get_ancestors
 from .get_nodes import get_nodes
+from .has_no_duplicate_nodes import has_no_duplicate_nodes
 
 
 @multimethod
 def dependencies_are_maintained(g: DiGraph, sp: SerialParallelDecomposition) -> bool:
+    assert has_no_duplicate_nodes(sp)
     if set(g.nodes()) != get_nodes(sp):
         return False
     for node in get_nodes(sp):
@@ -25,6 +27,3 @@ def dependencies_are_maintained(g: DiGraph, sp: DiGraph) -> bool:
         if not (ancestors(g, node) <= ancestors(sp, node)):
             return False
     return True
-
-
-# TODO: how to change this to account for duplicate nodes, might be fine already

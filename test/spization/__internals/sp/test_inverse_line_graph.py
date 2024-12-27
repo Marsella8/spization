@@ -125,14 +125,3 @@ def test_sp_n_graph():
 
     result = inverse_line_graph(reduced_g)
     assert result is None
-
-
-def test_all():
-    """Run all test cases"""
-    test_diamond_graph()
-    test_duplicate_edges()
-    test_sp_n_graph()
-
-
-if __name__ == "__main__":
-    test_all()

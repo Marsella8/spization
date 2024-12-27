@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 from typing import Optional
 
+import bidict
 import networkx as nx
 from networkx import DiGraph, MultiDiGraph
 
 from spization.__internals.general import get_only
 from spization.__internals.sp.inverse_line_graph import inverse_line_graph
-from spization.objects import DiEdge, MultiDiEdge, SerialParallelDecomposition
+from spization.objects import DiEdge, MultiDiEdge, Node, SerialParallelDecomposition
 from spization.utils.compositions import sp_parallel_composition, sp_serial_composition
 
 
@@ -71,7 +72,7 @@ def apply_series_reduction(mg: MultiDiGraph, r: SeriesReduction) -> MultiDiEdge:
     return (pre, post, idx)
 
 
-def get_serial_parallel_decomposition(
+def spg_to_sp(
     g: DiGraph,
 ) -> Optional[SerialParallelDecomposition]:
     g = nx.transitive_reduction(g)
@@ -113,6 +114,3 @@ def get_serial_parallel_decomposition(
         e: MultiDiEdge = get_only(ttsp.edges)
         if e[0] != e[1]:
             return ttsp_edge_to_sp_tree[e]
-
-
-# TODO rename to spg_to_sp

@@ -1,7 +1,7 @@
 import networkx as nx
 
 from spization.__internals.graph import is_2_terminal_dag, is_compatible_graph
-from spization.objects import DupNode
+from spization.objects import SyncNode
 
 
 def test_is_2_terminal_dag_valid():
@@ -37,5 +37,5 @@ def test_is_compatible_graph_valid():
 def test_is_compatible_graph_invalid():
     g = nx.DiGraph()
     g.add_node(1)
-    g.add_node(DupNode(2, 0))
-    is_compatible_graph(g) is False
+    g.add_node(SyncNode())
+    assert is_compatible_graph(g) is False

@@ -127,8 +127,8 @@ def test_spanish_strata_sync_graph_from_paper():
 def test_correctness():
     for input in graph_generator():
         result = spanish_strata_sync(input)
+        assert result is not None
         assert dependencies_are_maintained(input, result)
 
 
-# TODO: move everything to use get_series_parallel_decomposition
-# TODO does adding transitive reduction at each step affect
+# TODO does adding transitive reduction at each step affect it?

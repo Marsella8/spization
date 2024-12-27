@@ -72,4 +72,67 @@ def P(*children: Union[Serial, Node]) -> Parallel:
     return Parallel(children)
 
 
-# TODO: have nice formatting for long SP strings
+@dataclass(slots=True)
+class BinParallel:
+    t1: "BinSerialParallelDecomposition"
+    t2: "BinSerialParallelDecomposition"
+
+    def __post_init__(self) -> None:
+        # for term commutativity
+        if self.t1 > self.t2:
+            self.t1, self.t2 = self.t2, self.t1
+
+    def __str__(self) -> str:
+        return f"BP({self.t1}, {self.t2})"
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def __gt__(self, other):
+        if isinstance(other, Node):
+            return True
+        if isinstance(other, BinSerial):
+            return True
+        if isinstance(other, BinParallel):
+            return (self.t1, self.t2) > (other.t1, other.t2)
+        raise ValueError(
+            f"BinParallel is not comparable with object of type {type(other)}"
+        )
+
+    def __lt__(self, other):
+        return not (self > other)
+
+    def __hash__(self):
+        return hash((self.t1, self.t2))
+
+
+@dataclass(slots=True)
+class BinSerial:
+    t1: "BinSerialParallelDecomposition"
+    t2: "BinSerialParallelDecomposition"
+
+    def __gt__(self, other):
+        if isinstance(other, Node):
+            return True
+        if isinstance(other, BinParallel):
+            return True
+        if isinstance(other, BinSerial):
+            return (self.t1, self.t2) > (other.t1, other.t2)
+        raise ValueError(
+            f"BinSerial is not comparable with object of type {type(other)}"
+        )
+
+    def __lt__(self, other):
+        return not (self > other)
+
+    def __str__(self) -> str:
+        return f"BP({self.t1}, {self.t2})"
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def __hash__(self):
+        return hash((self.t1, self.t2))
+
+
+BinSerialParallelDecomposition = Union[BinSerial, BinParallel, Node]

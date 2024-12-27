@@ -91,12 +91,3 @@ def get_component_containing_node_in_tail(
     found: set[BipartiteComponent] = set(filter(lambda bc: n in bc.tail_nodes, cbc))
     assert len(found) <= 1
     return get_only(found) if found else None
-
-
-# TODO delete if not needed
-# def get_head_subcomponents(cbc : CompleteBipartiteCompositeDecomposition) -> set[frozenset[Node]]:
-#     return {frozenset(bc.head_nodes) for bc in cbc}
-
-
-# def get_tail_subcomponents(cbc : CompleteBipartiteCompositeDecomposition) -> set[frozenset[Node]]:
-#     return {frozenset(bc.tail_nodes) for bc in cbc}

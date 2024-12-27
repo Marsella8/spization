@@ -1,4 +1,4 @@
-from random import choice, random, sample
+from random import choice, random
 
 from spization.objects import (
     Node,
@@ -21,9 +21,8 @@ def random_sp(num_nodes: int, prob_serial: float = 0.5) -> SerialParallelDecompo
     sp: SerialParallelDecomposition = PureNode(0)
     for node in range(1, num_nodes):
         node_to_sub = get_random_node(sp)
-        n1, n2 = sample((node_to_sub, node), 2)  # For Serial
         if random() < prob_serial:
-            sp = replace_node(sp, node_to_sub, Serial((n1, n2)))
+            sp = replace_node(sp, node_to_sub, Serial((node_to_sub, node)))
         else:
-            sp = replace_node(sp, node_to_sub, Parallel((n1, n2)))
+            sp = replace_node(sp, node_to_sub, Parallel((node_to_sub, node)))
     return normalize(sp)

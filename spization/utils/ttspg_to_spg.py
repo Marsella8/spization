@@ -16,4 +16,4 @@ def ttspg_to_spg(g: DiGraph) -> DiGraph:
     return c
 
 
-# TODO standardize the naming: SPG, TTSPG, SP, BSP (binary series parallel)
+# TODO put the conversions into their own thing

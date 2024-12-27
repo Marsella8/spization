@@ -11,7 +11,7 @@ from spization.__internals.graph import (
     strata_sort,
 )
 from spization.objects import DummyNode, Node, SerialParallelDecomposition, SyncNode
-from spization.utils import get_serial_parallel_decomposition, ttspg_to_spg
+from spization.utils import spg_to_sp, ttspg_to_spg
 
 
 def add_dummy_nodes(g: DiGraph) -> DiGraph:
@@ -139,10 +139,10 @@ def spanish_strata_sync(g: DiGraph) -> SerialParallelDecomposition:
 
     SP = nx.transitive_reduction(delete_dummy_nodes(SP))
     SP = ttspg_to_spg(SP)
-    decomp: SerialParallelDecomposition | None = get_serial_parallel_decomposition(SP)
+    decomp: SerialParallelDecomposition | None = spg_to_sp(SP)
     assert decomp is not None
     return decomp
 
 
-# TODO: how to get around the dummy nodes ?
+# TODO: how to get around the dummy nodes ? Do it the flexible_sync way, which does not have sync nodes
 # TODO: check does changing around the order in which we parse the strata change the final result?

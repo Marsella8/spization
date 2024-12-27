@@ -6,6 +6,7 @@ from spization.objects import (
     Serial,
     SerialParallelDecomposition,
 )
+from spization.utils.has_no_duplicate_nodes import has_no_duplicate_nodes
 
 from .get_nodes import get_nodes
 
@@ -47,7 +48,7 @@ def perform_traversal(node: Node, starting_node: Node, ancestors: set[Node]) -> 
 
 def get_ancestors(sp: SerialParallelDecomposition, starting_node: Node) -> set[Node]:
     assert starting_node in get_nodes(sp)
-    # TODO: assert has no duplicate nodes
+    assert has_no_duplicate_nodes(sp)
     ancestors: set[Node] = set()
     perform_traversal(sp, starting_node, ancestors)
     return ancestors
