@@ -3,7 +3,7 @@ from math import log
 from random import choice, gauss, random
 from typing import Callable
 
-from spization.objects import Node
+from spization.objects import PureNode
 
 
 @dataclass(slots=True, frozen=True)
@@ -52,7 +52,9 @@ class Gaussian:
         return gauss(self.mean, self.std)
 
 
-def make_cost_map(nodes: set[Node], callable: Callable[[], float]) -> dict[Node, float]:
+def make_cost_map(
+    nodes: set[PureNode], callable: Callable[[], float]
+) -> dict[PureNode, float]:
     cost_map = {node: callable() for node in nodes}
     assert all(
         val >= 0 for val in cost_map.values()
@@ -61,9 +63,9 @@ def make_cost_map(nodes: set[Node], callable: Callable[[], float]) -> dict[Node,
 
 
 def apply_noise(
-    cost_map: dict[Node, float], noise: Callable[[], float]
-) -> dict[Node, float]:
-    noisy_cost_map = {node: cost * noise() for node, cost in cost_map.items()}
+    cost_map: dict[PureNode, float], noise: Callable[[], float]
+) -> dict[PureNode, float]:
+    noisy_cost_map = {node: cost + noise() for node, cost in cost_map.items()}
     assert all(
         val >= 0 for val in noisy_cost_map.values()
     ), "costs should be non-negative after noise"

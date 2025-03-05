@@ -6,14 +6,13 @@ from spization.objects import DiEdge, PureNode
 
 
 def add_node(g: DiGraph) -> PureNode:
-    if not hasattr(g, "node_counter"):
-        g.node_counter = 1
+    if len(g.nodes()) == 0:
+        g.node_counter = 0
+        g.add_node(0)
         return 0
+    g.node_counter = max(g.nodes()) + 1
     n = g.node_counter
-    g.node_counter += 1
-    if n in set(g.nodes()):
-        g.node_counter = max(g.nodes())
-        return add_node(g)
+    g.add_node(n)
     return n
 
 

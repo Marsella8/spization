@@ -7,6 +7,7 @@ from networkx import DiGraph
 
 from spization.__internals.general import get_only
 from spization.__internals.graph import (
+    add_edges,
     add_nodes,
     is_2_terminal_dag,
     sinks,
@@ -14,7 +15,6 @@ from spization.__internals.graph import (
 )
 from spization.objects import PureNode
 from spization.utils import graph_serial_composition
-
 
 def make_random_2_terminal_dag(num_nodes: int, p: float) -> DiGraph:
     g = nx.DiGraph()
@@ -38,6 +38,7 @@ def make_random_2_terminal_dag(num_nodes: int, p: float) -> DiGraph:
     assert is_2_terminal_dag(g)
     return g
 
+print(make_random_2_terminal_dag(100, 0.1))
 
 def make_random_local_2_terminal_dag(
     num_nodes: int, p: float, locality_ratio: float
@@ -58,10 +59,10 @@ def make_random_local_2_terminal_dag(
     sink = num_nodes - 1
 
     for node in sources(g) - {source}:
-        g.add_edge(source, node)
+        g.add_edge(node - 1, node)
 
     for node in sinks(g) - {sink}:
-        g.add_edge(node, sink)
+        g.add_edge(node, node + 1)
 
     assert is_2_terminal_dag(g)
     return g
@@ -114,7 +115,7 @@ def make_random_nasbench_101() -> DiGraph:
 
     while True:
         cell = make_cell()
-        if is_valid_cell(cell):
+        if is_valid_cell(cell) and spg_to_sp(cell) is None:
             break
     cells = []
     for i in range(NUM_CELLS):
@@ -124,6 +125,7 @@ def make_random_nasbench_101() -> DiGraph:
     net = graph_serial_composition(cells)
     return net
 
+from spization.utils import spg_to_sp
 
 def make_normal_taso_nasnet_cell() -> tuple[nx.DiGraph, PureNode, PureNode]:
     g = nx.DiGraph()

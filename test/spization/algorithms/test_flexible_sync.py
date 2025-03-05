@@ -3,6 +3,7 @@ import random
 from networkx import DiGraph
 from testing_utils import graph_generator
 
+from benchmarking.graphs import make_taso_nasnet_a
 from spization.algorithms import flexible_sync
 from spization.objects import Node, Parallel, PureNode, Serial
 from spization.utils import dependencies_are_maintained
@@ -135,6 +136,7 @@ def test_flexible_sync_with_appendage():
             (8, 6),
         ]
     )
+
     correct = Serial(
         (1, Parallel((7, Serial((Parallel((2, 3)), Parallel((4, 5, 8)))))), 6)
     )
@@ -161,6 +163,7 @@ def test_flexible_sync_with_appendage_weighted():
             (8, 6),
         ]
     )
+
     correct = Serial(
         (1, Parallel((7, Serial((3, Parallel((8, Serial((2, Parallel((4, 5)))))))))), 6)
     )
@@ -345,4 +348,9 @@ def test_correctness():
         assert dependencies_are_maintained(input, result)
 
 
-# # TODO do a shit ton of property testing.
+def test_taso_nasnet():
+    input = make_taso_nasnet_a(2, 6)
+    cost_map = truly_random_cost_map(input)
+    result = flexible_sync(input, cost_map)
+    assert result is not None
+    assert dependencies_are_maintained(input, result)

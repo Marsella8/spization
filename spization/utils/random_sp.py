@@ -1,7 +1,6 @@
 from random import choice, random
 
 from spization.objects import (
-    Node,
     Parallel,
     PureNode,
     Serial,
@@ -12,7 +11,7 @@ from spization.utils.normalize import normalize
 from spization.utils.replace_node import replace_node
 
 
-def get_random_node(sp: SerialParallelDecomposition) -> Node:
+def get_random_node(sp: SerialParallelDecomposition) -> PureNode:
     return choice(list(get_nodes(sp)))
 
 

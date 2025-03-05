@@ -7,6 +7,7 @@ from .compositions import (
 )
 from .critical_path_cost import (
     critical_path_cost,
+    get_critical_path_cost_map,
     relative_critical_path_cost_increase,
 )
 from .dependencies_are_maintained import dependencies_are_maintained
@@ -42,6 +43,7 @@ __all__ = [
     "has_no_duplicate_nodes",
     "critical_path_cost",
     "relative_critical_path_cost_increase",
+    "get_critical_path_cost_map",
     "work_cost",
     "relative_work_cost_increase",
     "ttspg_to_spg",

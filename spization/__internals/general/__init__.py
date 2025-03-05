@@ -4,7 +4,7 @@ from typing import Any, Iterable
 def get_only(container: Iterable[Any]) -> Any:
     c = list(container)
     if len(c) != 1:
-        raise ValueError("Container must only have 1 item")
+        raise ValueError(f"Container must only have 1 item, has {len(c)}")
     return c[0]
 
 

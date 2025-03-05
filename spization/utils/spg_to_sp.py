@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 
-import bidict
 import networkx as nx
+from bidict import bidict
 from networkx import DiGraph, MultiDiGraph
 
 from spization.__internals.general import get_only

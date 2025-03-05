@@ -1,171 +1,224 @@
+import random
 import statistics
-from concurrent.futures import ProcessPoolExecutor, as_completed
+import concurrent.futures
 from dataclasses import dataclass
-from typing import Callable
+from functools import partial
+from random import gauss
+from typing import Callable, List, Tuple, Dict, Any
 
+from cost_modelling import Exponential, Uniform, apply_noise, make_cost_map
+from graphs import make_random_local_2_terminal_dag, make_taso_nasnet_a, make_random_2_terminal_dag
 from rich.console import Console
-from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.progress import Progress
 from rich.table import Table
 
 from spization.algorithms import flexible_sync, naive_strata_sync, spanish_strata_sync
 from spization.utils import relative_critical_path_cost_increase
 
-from .cost_modelling import Exponential, make_cost_map
-from .graphs import (
-    make_random_2_terminal_dag,
-    make_random_nasbench_101,
-    make_taso_nasnet_a,
-)
-
 console = Console()
 
-EPOCHS = 10
+RUNS = 10
+EPOCHS_PER_RUN = 12
+BASE_NODES = 100
+EDGE_PROB = 0.1
+MAX_WORKERS = 12
 
 
 @dataclass
 class BenchmarkResult:
-    naive_results: list[float]
-    spanish_results: list[float]
-    flexible_results: list[float]
+    parameters: list[float]
+    naive: list[list[float]]
+    spanish: list[list[float]]
+    flexible: list[list[float]]
 
 
-def run_single_benchmark(
-    benchmark_func: Callable, benchmark_name: str
-) -> tuple[str, BenchmarkResult]:
-    result = benchmark_func()
-    return benchmark_name, result
+def uniform_sampler(max_val, _):
+    return random.uniform(1, 2*max_val)
 
 
-def benchmark_2_terminal_random_dag(
-    epochs: int = EPOCHS, num_nodes: int = 50, p: float = 0.05
-) -> BenchmarkResult:
-    naive_results: list[float] = []
-    spanish_results: list[float] = []
-    flexible_results: list[float] = []
-    cost_sampler = Exponential(5)
-
-    for i in range(epochs):
-        print("RANDOM-DAG", i)
-        g = make_random_2_terminal_dag(num_nodes, p)
-        cost_map = make_cost_map(g.nodes(), cost_sampler)
-
-        sp1 = naive_strata_sync(g)
-        sp2 = spanish_strata_sync(g)
-        sp3 = flexible_sync(g, cost_map)
-
-        naive_results.append(relative_critical_path_cost_increase(g, sp1, cost_map))
-        spanish_results.append(relative_critical_path_cost_increase(g, sp2, cost_map))
-        flexible_results.append(relative_critical_path_cost_increase(g, sp3, cost_map))
-
-    return BenchmarkResult(
-        naive_results=naive_results,
-        spanish_results=spanish_results,
-        flexible_results=flexible_results,
-    )
+def noise_sampler(sigma, _):
+    return max(0.0001, gauss(0, sigma))
 
 
-def benchmark_nasbench_101(epochs: int = EPOCHS) -> BenchmarkResult:
-    naive_results: list[float] = []
-    spanish_results: list[float] = []
-    flexible_results: list[float] = []
-    cost_sampler = Exponential(5)
-
-    for i in range(epochs):
-        print("NASNBENCH101", i)
-        g = make_random_nasbench_101()
-        cost_map = make_cost_map(g.nodes(), cost_sampler)
-
-        sp1 = naive_strata_sync(g)
-        sp2 = spanish_strata_sync(g)
-        sp3 = flexible_sync(g, cost_map)
-
-        naive_results.append(relative_critical_path_cost_increase(g, sp1, cost_map))
-        spanish_results.append(relative_critical_path_cost_increase(g, sp2, cost_map))
-        flexible_results.append(relative_critical_path_cost_increase(g, sp3, cost_map))
-
-    return BenchmarkResult(
-        naive_results=naive_results,
-        spanish_results=spanish_results,
-        flexible_results=flexible_results,
-    )
-
-
-def benchmark_taso_nasnet_a(
-    epochs: int = EPOCHS, num_reduction_cells: int = 2, N: int = 3
-) -> BenchmarkResult:
-    naive_results: list[float] = []
-    spanish_results: list[float] = []
-    flexible_results: list[float] = []
-    cost_sampler = Exponential(5)
-
-    g = make_taso_nasnet_a(num_reduction_cells, N)
-    for i in range(epochs):
-        print("NASNET-A", i)
-        cost_map = make_cost_map(g.nodes(), cost_sampler)
-
-        sp1 = naive_strata_sync(g)
-        sp2 = spanish_strata_sync(g)
-        sp3 = flexible_sync(g, cost_map)
-
-        naive_results.append(relative_critical_path_cost_increase(g, sp1, cost_map))
-        spanish_results.append(relative_critical_path_cost_increase(g, sp2, cost_map))
-        flexible_results.append(relative_critical_path_cost_increase(g, sp3, cost_map))
-
-    return BenchmarkResult(
-        naive_results=naive_results,
-        spanish_results=spanish_results,
-        flexible_results=flexible_results,
-    )
+def get_epoch_metrics(
+    graph_gen_args: Dict[str, Any],
+    cost_sampler_name: str,
+    cost_sampler_args: Dict[str, Any],
+    noise_sampler_name: str = None,
+    noise_sampler_args: Dict[str, Any] = None,
+) -> Tuple[float, float, float]:
+    dag = make_random_2_terminal_dag(**graph_gen_args)
+    
+    if cost_sampler_name == "uniform":
+        cost_sample_fn = lambda: uniform_sampler(cost_sampler_args["max_val"], None)
+    elif cost_sampler_name == "exponential":
+        cost_sample_fn = Exponential(cost_sampler_args["scale"])
+    else:
+        raise ValueError(f"Unknown cost sampler: {cost_sampler_name}")
+    
+    noise_sample_fn = None
+    if noise_sampler_name == "gaussian":
+        noise_sample_fn = lambda: noise_sampler(noise_sampler_args["sigma"], None)
+    
+    base_costs = make_cost_map(dag.nodes(), cost_sample_fn)
+    final_costs = apply_noise(base_costs, noise_sample_fn) if noise_sample_fn else base_costs
+    
+    strategies = [
+        naive_strata_sync(dag),
+        spanish_strata_sync(dag),
+        flexible_sync(dag, final_costs),
+    ]
+    
+    metrics = [
+        relative_critical_path_cost_increase(dag, sp, base_costs)
+        for sp in strategies
+    ]
+    
+    return metrics[0], metrics[1], metrics[2]
 
 
-def print_benchmark_result(result: BenchmarkResult, benchmark_name: str) -> None:
-    table = Table(title=f"{benchmark_name} Results")
-    table.add_column("Algorithm", style="cyan", no_wrap=True)
-    table.add_column("Average", style="magenta")
-    table.add_column("Variance", style="green")
+def run_uniform_scenario(num_runs=RUNS, epochs_per_run=EPOCHS_PER_RUN):
+    console.print("[bold]Running uniform scenario with multiprocessing...[/]")
+    
+    result = BenchmarkResult([], [], [], [])
+    with Progress(transient=True) as progress:
+        task = progress.add_task("[cyan]Uniform(1, x) with doubling range", total=num_runs)
+        
+        graph_args = {
+            "num_nodes": BASE_NODES,
+            "p": EDGE_PROB
+        }
+        
+        with concurrent.futures.ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            for run in range(num_runs):
+                run_naive, run_spanish, run_flexible = [], [], []
+                
+                max_val = 2 ** (run + 1)
+                
+                futures = []
+                for _ in range(epochs_per_run):
+                    futures.append(
+                        executor.submit(
+                            get_epoch_metrics,
+                            graph_args,
+                            "uniform",
+                            {"max_val": max_val},
+                            None,
+                            None
+                        )
+                    )
+                
+                for future in concurrent.futures.as_completed(futures):
+                    try:
+                        naive, spanish, flexible = future.result()
+                        run_naive.append(naive)
+                        run_spanish.append(spanish)
+                        run_flexible.append(flexible)
+                    except Exception as e:
+                        console.print(f"[red]Error in uniform scenario: {str(e)}[/]")
+                
+                result.parameters.append(max_val)
+                result.naive.append(run_naive)
+                result.spanish.append(run_spanish)
+                result.flexible.append(run_flexible)
+                progress.update(task, advance=1)
+    
+    return result
 
-    naive_avg = sum(result.naive_results) / len(result.naive_results)
-    spanish_avg = sum(result.spanish_results) / len(result.spanish_results)
-    flexible_avg = sum(result.flexible_results) / len(result.flexible_results)
 
-    naive_variance = statistics.variance(result.naive_results)
-    spanish_variance = statistics.variance(result.spanish_results)
-    flexible_variance = statistics.variance(result.flexible_results)
+def run_exponential_scenario(num_runs=RUNS, epochs_per_run=EPOCHS_PER_RUN):
+    console.print("[bold]Running exponential scenario with multiprocessing...[/]")
+    
+    result = BenchmarkResult([], [], [], [])
+    with Progress(transient=True) as progress:
+        task = progress.add_task("[cyan]Exponential(1) with increasing Gaussian noise", total=num_runs)
+        
+        graph_args = {
+            "num_nodes": BASE_NODES,
+            "p": EDGE_PROB
+        }
+        
+        with concurrent.futures.ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            for run in range(num_runs):
+                run_naive, run_spanish, run_flexible = [], [], []
+                
+                sigma = run * 0.2
+                
+                futures = []
+                for _ in range(epochs_per_run):
+                    futures.append(
+                        executor.submit(
+                            get_epoch_metrics,
+                            graph_args,
+                            "exponential",
+                            {"scale": 1.0},
+                            "gaussian",
+                            {"sigma": sigma}
+                        )
+                    )
+                
+                for future in concurrent.futures.as_completed(futures):
+                    try:
+                        naive, spanish, flexible = future.result()
+                        run_naive.append(naive)
+                        run_spanish.append(spanish)
+                        run_flexible.append(flexible)
+                    except Exception as e:
+                        console.print(f"[red]Error in exponential scenario: {str(e)}[/]")
+                
+                result.parameters.append(sigma)
+                result.naive.append(run_naive)
+                result.spanish.append(run_spanish)
+                result.flexible.append(run_flexible)
+                progress.update(task, advance=1)
+    
+    return result
 
-    table.add_row("Naive", f"{naive_avg:.3f}", f"{naive_variance:.3f}")
-    table.add_row("Spanish", f"{spanish_avg:.3f}", f"{spanish_variance:.3f}")
-    table.add_row("Flexible", f"{flexible_avg:.3f}", f"{flexible_variance:.3f}")
+
+def print_results(result: BenchmarkResult, title: str, param_label: str) -> None:
+    table = Table(title=title, show_header=True, header_style="bold magenta")
+    table.add_column("Run", style="cyan")
+    table.add_column(param_label, style="yellow")
+    table.add_column("Naive (μ/σ²)", justify="right")
+    table.add_column("Spanish (μ/σ²)", justify="right")
+    table.add_column("Flexible (μ/σ²)", justify="right")
+
+    for idx in range(len(result.parameters)):
+        if result.naive[idx] and result.spanish[idx] and result.flexible[idx]:
+            naive_mean = statistics.mean(result.naive[idx])
+            naive_var = statistics.variance(result.naive[idx]) if len(result.naive[idx]) > 1 else 0
+            spanish_mean = statistics.mean(result.spanish[idx])
+            spanish_var = statistics.variance(result.spanish[idx]) if len(result.spanish[idx]) > 1 else 0
+            flexible_mean = statistics.mean(result.flexible[idx])
+            flexible_var = statistics.variance(result.flexible[idx]) if len(result.flexible[idx]) > 1 else 0
+            
+            table.add_row(
+                f"{idx+1}",
+                f"{result.parameters[idx]:.1f}",
+                f"{naive_mean:.3f}/{naive_var:.1f}",
+                f"{spanish_mean:.3f}/{spanish_var:.1f}",
+                f"{flexible_mean:.3f}/{flexible_var:.1f}",
+            )
+        else:
+            table.add_row(
+                f"{idx+1}",
+                f"{result.parameters[idx]:.1f}",
+                "N/A",
+                "N/A",
+                "N/A",
+            )
 
     console.print(table)
 
+def main():
+    uniform_results = run_uniform_scenario()
+    exp_noise_results = run_exponential_scenario()
+    
+    console.print("\n[bold underline]Local DAG - Uniform Distribution[/]")
+    print_results(uniform_results, "Uniform Range Progression", "Range Max")
+    
+    console.print("\n[bold underline]Local DAG - Noisy Exponential[/]")
+    print_results(exp_noise_results, "Gaussian Noise Progression", "σ Value")
 
-def run_benchmark() -> None:
-    benchmarks = {
-        "2-Terminal Random DAG": benchmark_2_terminal_random_dag,
-        "NASBench-101": benchmark_nasbench_101,
-        "TASO NASNet-A": benchmark_taso_nasnet_a,
-    }
-
-    results: dict[str, BenchmarkResult] = {}
-
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console,
-    ) as progress:
-        task = progress.add_task("[cyan]Running benchmarks...", total=len(benchmarks))
-
-        with ProcessPoolExecutor(max_workers=4) as executor:
-            future_to_name = {
-                executor.submit(run_single_benchmark, func, name): name
-                for name, func in benchmarks.items()
-            }
-
-            for future in as_completed(future_to_name):
-                name, result = future.result()
-                results[name] = result
-                progress.update(task, advance=1)
-
-    console.print("\n[bold]All Benchmark Results:[/bold]\n")
-    for name, result in results.items():
-        print_benchmark_result(result, name)
+if __name__ == "__main__":
+    main()

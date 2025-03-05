@@ -7,7 +7,7 @@ A simple Python package for Graph Series-Parallel-ization.
 
 Your SP: no sync nodes, can be dups
 - Does not have sync nodes, can only have nodes as int. If coming from a graph with dupes, the nodes are simply deduplicated (so from NodeDup to int).
-Technically, SP can only hold PureNodes, but for simplicity we'll have Node.
+Technically, SP can only hold NODEs, but for simplicity we'll have Node.
 
 Your graph: sync nodes, cannot be dups
 - Can have sync nodes or not (and can freely switch between one another)
@@ -38,3 +38,5 @@ For linting: `ruff check --fix`/`ruff format`
 For type checking: `mypy .`
 
 To run benchmarking: `benchmark`
+
+For profiling: `pyinstrument /path/to/file.py`

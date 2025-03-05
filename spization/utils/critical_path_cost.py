@@ -38,18 +38,30 @@ def critical_path_cost(
 def critical_path_cost(
     g: DiGraph, cost_map: dict[Node, int | float] | None = None
 ) -> int | float:
+    mp = get_critical_path_cost_map(g, cost_map)
+    return 0 if mp == {} else max(mp.values())
+
+
+def get_critical_path_cost_map(
+    g: DiGraph, cost_map: dict[Node, int | float] | None = None
+) -> dict[Node, int | float]:
     if g.number_of_nodes() == 0:
-        return 0
+        return {}
+
     assert nx.is_directed_acyclic_graph(g)
+
     if cost_map is None:
         cost_map = {node: 1 for node in g.nodes()}
+
     path_map = {node: cost_map[node] for node in sources(g)}
+
     for node in nx.topological_sort(g):
         if node not in sources(g):
             path_map[node] = cost_map[node] + max(
                 path_map[p] for p in g.predecessors(node)
             )
-    return max(path_map.values())
+
+    return path_map
 
 
 @multimethod

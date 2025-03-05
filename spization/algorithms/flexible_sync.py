@@ -1,6 +1,3 @@
-import itertools
-import random
-
 import networkx as nx
 from networkx import DiGraph
 
@@ -15,13 +12,15 @@ from spization.__internals.graph import (
 from spization.objects import Node, PureNode, SyncNode
 from spization.utils import (
     critical_path_cost,
+    dependencies_are_maintained,
+    get_critical_path_cost_map,
     spg_to_sp,
     ttspg_to_spg,
 )
 
 
-def get_component(SP: DiGraph, node: Node) -> set[Node]:
-    parents = set(SP.predecessors(node))
+def get_component(SP: DiGraph, nodes: Node) -> set[Node]:
+    parents = set().union(*[SP.predecessors(node) for node in nodes])
     children = set().union(*[nx.descendants(SP, p) for p in parents])
     other_parents = set().union(*[SP.predecessors(c) for c in children])
     return parents | children | other_parents
@@ -38,33 +37,36 @@ def get_forest(SP: DiGraph, handle: Node, component: set[Node]) -> set[Node]:
 
 
 def get_up_and_down(
-    main_node: Node, SP: DiGraph, forest: set[Node], cost_map: dict[Node, float]
+    nodes: Node, SP: DiGraph, forest: set[Node], cost_map: dict[Node, float]
 ) -> tuple[set[Node], set[Node]]:
     SP: DiGraph = ttspg_to_spg(SP)
 
-    base_up = {main_node}
-    base_down = set(SP.predecessors(main_node))
-    assert all(p in forest for p in base_down)
+    base_down = set(nodes)
+    base_up = set().union(*[nx.ancestors(SP, node) for node in nodes]) & forest
     assignable_nodes = forest - (base_up | base_down)
+    critical_path_cost_map = get_critical_path_cost_map(
+        SP.subgraph(forest), cost_map
+    )
+    def get_partitions():
+        bipartitions = set()
+        bipartitions.add((frozenset(base_up), frozenset(base_down | assignable_nodes)))
+        for node in assignable_nodes:
+            reference_cost = critical_path_cost_map.get(node)
+            up = base_up | {
+                node
+                for node in assignable_nodes
+                if critical_path_cost_map.get(node) <= reference_cost
+            }
+            down = (base_down | assignable_nodes) - up
+            bipartitions.add((frozenset(up), frozenset(down)))
+        return bipartitions
 
-    def random_subsets(assignable_nodes):
-        s = sorted(assignable_nodes)
-        while True:
-            r = random.randint(0, len(s))
-            subset = random.sample(s, r)
-            yield subset
-
-    bipartitions = set()
-    for subset in itertools.islice(random_subsets(assignable_nodes), 10000):
-        subset = set(subset) | base_up  # up
-        complement = (assignable_nodes | base_down) - subset  # down
-        assert (subset & complement == set()) and (subset | complement == forest)
-        bipartitions.add((frozenset(subset), frozenset(complement)))
-        bipartitions.add((frozenset(complement), frozenset(subset)))
+    bipartitions = get_partitions()
 
     def is_valid_bipartition(up: set[Node], down: set[Node]) -> bool:
-        if main_node not in down:
-            return False
+        for node in nodes:
+            if node not in down:
+                return False
 
         for node in SP.nodes():
             if node in down:
@@ -81,7 +83,9 @@ def get_up_and_down(
 
     assert valid_partitions
 
-    def partition_cost(partition: tuple[set[Node], set[Node]]) -> float:
+    def partition_cost(
+        partition: tuple[set[Node], set[Node]],
+    ) -> tuple[float, float, float]:
         up, down = partition
         up_cost = critical_path_cost(SP.subgraph(up), cost_map)
         down_cost = critical_path_cost(SP.subgraph(down), cost_map)
@@ -126,7 +130,7 @@ def edges_to_add(
     return to_add
 
 
-def get_next_node(SP: DiGraph, g: DiGraph, cost_map: dict[Node, float]) -> Node:
+def get_next_nodes(SP: DiGraph, g: DiGraph, cost_map: dict[Node, float]) -> Node:
     sp_longest_paths = longest_path_lengths_from_source(SP, cost_map)
 
     candidate_nodes: set[Node] = {
@@ -143,13 +147,18 @@ def get_next_node(SP: DiGraph, g: DiGraph, cost_map: dict[Node, float]) -> Node:
         parent_costs = {sp_longest_paths[parent] for parent in g.predecessors(node)}
         critical_path_costs[node] = cost_map[node] + max(parent_costs)
 
-    return min(
+    ref_node = min(
         critical_path_costs.keys(),
         key=lambda node: (critical_path_costs.get(node), node),
-    )  # split ties with smallest node, for testing purposes
+    )
+
+    nodes = {ref_node}
+    for node in candidate_nodes:
+        if g.predecessors(node) == g.predecessors(ref_node):
+            nodes.add(node)
+    return nodes
 
 
-# TODO: remove in_single_sourced restruiction by adding dummy node
 def flexible_sync(g: DiGraph, cost_map: dict[Node, float]) -> DiGraph:
     assert is_single_sourced(g) and is_compatible_graph(g)
     g = nx.transitive_reduction(g)
@@ -158,21 +167,22 @@ def flexible_sync(g: DiGraph, cost_map: dict[Node, float]) -> DiGraph:
     root: Node = get_only(sources(g))
     SP.add_node(root)
     node = root
-    for _ in range(g.number_of_nodes() - 1):
-        node = get_next_node(SP, g, cost_map)
-        SP.add_node(node)
-        SP.add_edges_from(g.in_edges(node))
+    while not set(g.nodes).issubset(SP.nodes):
+        nodes = get_next_nodes(SP, g, cost_map)
+        SP.add_nodes_from(nodes)
+        for node in nodes:
+            SP.add_edges_from(g.in_edges(node))
+        SP = nx.transitive_reduction(
+            SP
+        )  # TODO this can be improved, simply selectively remove the previously added edges
 
-        component: set[Node] = get_component(SP, node)
+        component: set[Node] = get_component(SP, nodes)
         handle: Node = lowest_common_ancestor(SP, component)
         forest: set[Node] = get_forest(SP, handle, component)
         up, down, up_frontier, down_frontier = get_up_and_down(
-            node, SP, forest, cost_map
+            nodes, SP, forest, cost_map
         )
-        # print(f"{component=}")
-        # print(f"{handle=}")
-        # print(f"{forest=}")
-        # print(f"{up=}, {down=}")
+
         sync = SyncNode()
         cost_map[sync] = 0
         SP.remove_edges_from(edges_to_remove(SP, up, down))
@@ -180,7 +190,7 @@ def flexible_sync(g: DiGraph, cost_map: dict[Node, float]) -> DiGraph:
     SP = ttspg_to_spg(SP)
     decomp = spg_to_sp(SP)
     assert decomp is not None
+    assert dependencies_are_maintained(g, decomp)
     return decomp
-
 
 # TODO ? IMPLEMENT the change where all the dependencies of a guy up in the tree are pushed down

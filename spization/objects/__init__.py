@@ -1,5 +1,5 @@
 from .edges import DiEdge, MultiDiEdge
-from .nodes import DummyNode, Node, PureNode, SyncNode
+from .nodes import Node, NodeRole, PureNode, SyncNode
 from .splits import (
     BinParallel,
     BinSerial,
@@ -18,8 +18,8 @@ del edges
 __all__ = [
     "Node",
     "PureNode",
-    "DummyNode",
     "SyncNode",
+    "NodeRole",
     "Serial",
     "Parallel",
     "P",

@@ -1,5 +1,6 @@
 from dataclasses import field
-from typing import Any
+from enum import Enum, auto
+from typing import Union
 
 PureNode = int
 
@@ -18,25 +19,22 @@ class SyncNode:
     def __repr__(self) -> str:
         return f"SyncNode({self.id})"
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, SyncNode):
             return False
         return self.id == other.id
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.id)
 
 
-class DummyNode:
-    id: Any = field(init=False)
-    _counter: int = 0
-
-    def __init__(self) -> None:
-        DummyNode._counter += 1
-        self.id = DummyNode._counter
-
-    def __repr__(self) -> str:
-        return f"DummyNode({self.id})"
+Node = Union[PureNode, SyncNode]
 
 
-Node = PureNode | DummyNode | SyncNode
+class NodeRole(Enum):
+    STANDARD = auto()
+    DUMMY = auto()
+    SYNC = auto()
+
+
+# TODO: all nodes are now ints, if you want to distinguish you now need to have a node_type map
