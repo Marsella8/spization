@@ -1,0 +1,10 @@
+#! /usr/bin/env bash
+
+DIR="$(dirname "${BASH_SOURCE[0]}")"
+
+set -euxo pipefail
+
+cd "$DIR/.."
+
+mypy spization/
+pytest

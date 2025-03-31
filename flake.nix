@@ -23,9 +23,12 @@
       };
 
       devShells.default = pkgs.mkShell {
+        inputsFrom = [
+          self.packages.${system}.spization 
+        ];
+
         buildInputs = (with pkgs; [
           python3
-          self.packages.${system}.spization
         ]);
       };
     }

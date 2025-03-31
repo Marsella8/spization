@@ -8,6 +8,8 @@
 , bidict
 , poetry-core
 , buildPythonPackage
+, pytest
+, mypy
 }:
 
 buildPythonPackage {
@@ -24,6 +26,11 @@ buildPythonPackage {
     rich
     multiset
     bidict
+  ];
+
+  nativeCheckInputs = [
+    pytest
+    mypy
   ];
 
   build-system = [
