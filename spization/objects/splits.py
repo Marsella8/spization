@@ -41,7 +41,7 @@ class Serial:
         return hash(self.children)
 
     def __str__(self) -> str:
-        return f"S{tuple(self.children)}"
+        return f"S{self.children}"
 
     def __repr__(self) -> str:
         return self.__str__()

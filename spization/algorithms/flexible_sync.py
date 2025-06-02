@@ -44,9 +44,8 @@ def get_up_and_down(
     base_down = set(nodes)
     base_up = set().union(*[nx.ancestors(SP, node) for node in nodes]) & forest
     assignable_nodes = forest - (base_up | base_down)
-    critical_path_cost_map = get_critical_path_cost_map(
-        SP.subgraph(forest), cost_map
-    )
+    critical_path_cost_map = get_critical_path_cost_map(SP.subgraph(forest), cost_map)
+
     def get_partitions():
         bipartitions = set()
         bipartitions.add((frozenset(base_up), frozenset(base_down | assignable_nodes)))
@@ -193,4 +192,4 @@ def flexible_sync(g: DiGraph, cost_map: dict[Node, float]) -> DiGraph:
     assert dependencies_are_maintained(g, decomp)
     return decomp
 
-# TODO ? IMPLEMENT the change where all the dependencies of a guy up in the tree are pushed down
+
