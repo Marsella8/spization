@@ -3,6 +3,7 @@ from networkx import DiGraph
 
 from spization.__internals.general import get_only
 from spization.__internals.graph import (
+    add_node,
     is_2_terminal_dag,
     is_compatible_graph,
     longest_path_lengths_from_source,
@@ -10,12 +11,19 @@ from spization.__internals.graph import (
     sources,
     strata_sort,
 )
-from spization.objects import Node, SerialParallelDecomposition, SyncNode, NodeRole, PureNode
+from spization.objects import (
+    Node,
+    NodeRole,
+    PureNode,
+    SerialParallelDecomposition,
+    SyncNode,
+)
 from spization.utils import spg_to_sp, ttspg_to_spg
-from spization.__internals.graph import add_node
 
-def add_dummy_nodes(g: DiGraph, node_roles : dict[PureNode, NodeRole]) -> tuple[DiGraph, dict[PureNode, NodeRole]]:
-    """Fixes the edges spanning across multiple strata by breaking up the edge into a linear graph"""
+
+def add_dummy_nodes(
+    g: DiGraph, node_roles: dict[PureNode, NodeRole]
+) -> tuple[DiGraph, dict[PureNode, NodeRole]]:
     new_g = g.copy()
     depth_map: dict[Node, int] = longest_path_lengths_from_source(g)
     for src, dst in list(g.edges()):
@@ -104,7 +112,9 @@ def edges_to_remove(
     return to_remove
 
 
-def edges_to_add(up: set[Node], down: set[Node], node_roles) -> tuple[set[tuple[Node, Node]], dict]:
+def edges_to_add(
+    up: set[Node], down: set[Node], node_roles
+) -> tuple[set[tuple[Node, Node]], dict]:
     to_add: set[tuple[Node, Node]] = set()
     sync = SyncNode()
     node_roles[sync] = NodeRole.SYNC
@@ -118,7 +128,7 @@ def edges_to_add(up: set[Node], down: set[Node], node_roles) -> tuple[set[tuple[
 def spanish_strata_sync(g: DiGraph) -> SerialParallelDecomposition:
     assert is_2_terminal_dag(g) and is_compatible_graph(g)
     g = nx.transitive_reduction(g)
-    node_roles = {n : NodeRole.STANDARD for n in g.nodes}
+    node_roles = {n: NodeRole.STANDARD for n in g.nodes}
     g, node_roles = add_dummy_nodes(g, node_roles)
     depth_map: dict[Node, int] = longest_path_lengths_from_source(g)
     root: Node = get_only(sources(g))
@@ -129,6 +139,7 @@ def spanish_strata_sync(g: DiGraph) -> SerialParallelDecomposition:
             continue
         SP.add_node(node)
         SP.add_edges_from(g.in_edges(node))
+        SP = nx.transitive_reduction(SP)
         max_depth: int = max({d for n, d in depth_map.items() if n in SP.nodes()})
 
         component: set[Node] = get_component(SP, node, depth_map, max_depth)
@@ -140,8 +151,9 @@ def spanish_strata_sync(g: DiGraph) -> SerialParallelDecomposition:
         edges, node_roles = edges_to_add(up, down, node_roles)
         SP.add_edges_from(edges)
 
-    SP = nx.transitive_reduction(delete_dummy_nodes(SP, node_roles))
+    SP = nx.transitive_reduction(SP)
     SP = ttspg_to_spg(SP)
+    SP = delete_dummy_nodes(SP, node_roles)
     decomp: SerialParallelDecomposition | None = spg_to_sp(SP)
     assert decomp is not None
     return decomp
