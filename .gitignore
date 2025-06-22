@@ -1,3 +1,6 @@
+# nix build result
+/result
+
 # PyCache
 __pycache__/
 
