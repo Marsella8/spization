@@ -191,5 +191,3 @@ def flexible_sync(g: DiGraph, cost_map: dict[Node, float]) -> DiGraph:
     assert decomp is not None
     assert dependencies_are_maintained(g, decomp)
     return decomp
-
-

@@ -1,12 +1,12 @@
 import random
 
 from networkx import DiGraph
-from testing_utils import graph_generator
 
 from benchmarking.graphs import make_taso_nasnet_a
 from spization.algorithms import flexible_sync
 from spization.objects import Node, Parallel, PureNode, Serial
 from spization.utils import dependencies_are_maintained
+from test.spization.testing_utils import graph_generator
 
 random.seed(0)
 

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Collection, Iterator, Sequence, Union
+from typing import Collection, Iterator, Sequence
 
 from multimethod import multimethod
 from multiset import FrozenMultiset
@@ -9,7 +11,7 @@ from .nodes import PureNode
 
 @dataclass(slots=True)
 class Parallel:
-    children: Collection[Union["Serial", PureNode]] = FrozenMultiset()
+    children: Collection[Serial | PureNode] = FrozenMultiset()
 
     def __post_init__(self) -> None:
         self.children = FrozenMultiset(self.children)
@@ -23,7 +25,7 @@ class Parallel:
     def __repr__(self) -> str:
         return self.__str__()
 
-    def __iter__(self) -> Iterator[Union["Serial", PureNode]]:
+    def __iter__(self) -> Iterator[Serial | PureNode]:
         return iter(self.children)
 
     def __len__(self) -> int:
@@ -32,7 +34,7 @@ class Parallel:
 
 @dataclass(slots=True)
 class Serial:
-    children: Sequence[Union["Parallel", PureNode]] = ()
+    children: Sequence[Parallel | PureNode] = ()
 
     def __post_init__(self) -> None:
         self.children = tuple(self.children)
@@ -46,36 +48,36 @@ class Serial:
     def __repr__(self) -> str:
         return self.__str__()
 
-    def __iter__(self) -> Iterator[Union["Parallel", PureNode]]:
+    def __iter__(self) -> Iterator[Parallel | PureNode]:
         return iter(self.children)
 
     def __len__(self) -> int:
         return len(self.children)
 
     @multimethod
-    def __getitem__(self, index: PureNode) -> Union["Parallel", PureNode]:
+    def __getitem__(self, index: PureNode) -> Parallel | PureNode:
         return self.children[index]
 
     @multimethod
-    def __getitem__(self, range: slice) -> "Serial":
+    def __getitem__(self, range: slice) -> Serial:
         return Serial(self.children[range])
 
 
-SerialParallelDecomposition = Union[Serial, Parallel, PureNode]
+type SerialParallelDecomposition = Serial | Parallel | PureNode
 
 
-def S(*children: Union[Parallel, PureNode]) -> Serial:
+def S(*children: Parallel | PureNode) -> Serial:
     return Serial(children)
 
 
-def P(*children: Union[Serial, PureNode]) -> Parallel:
+def P(*children: Serial | PureNode) -> Parallel:
     return Parallel(children)
 
 
 @dataclass(slots=True)
 class BinParallel:
-    t1: "BinSerialParallelDecomposition"
-    t2: "BinSerialParallelDecomposition"
+    t1: BinSerialParallelDecomposition
+    t2: BinSerialParallelDecomposition
 
     def __post_init__(self) -> None:
         # for term commutativity
@@ -108,8 +110,8 @@ class BinParallel:
 
 @dataclass(slots=True)
 class BinSerial:
-    t1: "BinSerialParallelDecomposition"
-    t2: "BinSerialParallelDecomposition"
+    t1: BinSerialParallelDecomposition
+    t2: BinSerialParallelDecomposition
 
     def __gt__(self, other: object) -> bool:
         if isinstance(other, PureNode):
@@ -135,4 +137,4 @@ class BinSerial:
         return hash((self.t1, self.t2))
 
 
-BinSerialParallelDecomposition = Union[BinSerial, BinParallel, PureNode]
+type BinSerialParallelDecomposition = BinSerial | BinParallel | PureNode

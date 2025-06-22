@@ -1,9 +1,9 @@
 from networkx import DiGraph
-from testing_utils import graph_generator
 
 from spization.algorithms import naive_strata_sync
 from spization.objects import Parallel, Serial
 from spization.utils import dependencies_are_maintained
+from test.spization.testing_utils import graph_generator
 
 
 def test_linear_graph():

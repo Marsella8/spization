@@ -14,6 +14,3 @@ def ttspg_to_spg(g: DiGraph) -> DiGraph:
             c.remove_node(node)
 
     return c
-
-
-# TODO put the conversions into their own thing

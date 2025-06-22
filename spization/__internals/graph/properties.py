@@ -20,3 +20,15 @@ def is_compatible_graph(g: DiGraph) -> bool:
 
 def is_single_sourced(g: DiGraph) -> bool:
     return len(sources(g)) == 1
+
+
+def is_transitively_closed(g: DiGraph) -> bool:
+    for node in g.nodes():
+        for descendant in nx.descendants(g, node):
+            if not g.has_edge(node, descendant):
+                return False
+    return True
+
+
+def is_transitively_closed_dag(g: DiGraph) -> bool:
+    return nx.is_directed_acyclic_graph(g) and is_transitively_closed(g)

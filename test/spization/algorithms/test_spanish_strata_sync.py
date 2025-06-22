@@ -1,9 +1,9 @@
 from networkx import DiGraph
-from testing_utils import graph_generator
 
 from spization.algorithms import spanish_strata_sync
 from spization.objects import Parallel, Serial
 from spization.utils import dependencies_are_maintained
+from test.spization.testing_utils import graph_generator
 
 
 def test_spanish_strata_sync_6_diamond_with_cross_edge():
