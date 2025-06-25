@@ -1,4 +1,5 @@
 from itertools import chain
+from functools import reduce
 from typing import Callable, Iterable
 
 
@@ -18,5 +19,15 @@ def flatmap[T, U](
 ) -> Iterable[U]:
     return chain.from_iterable(map(func, iterable))
 
+def are_all_equal[T](iterable: Iterable[T]) -> bool:
+    if len(iterable) == 0:
+        return True
+    first = next(iter(iterable))
+    return all(first == x for x in iterable)
 
-__all__ = ["get_any", "get_only", "flatmap"]
+def are_all_disjoint[T](iterable: Iterable[set[T] | frozenset[T]]) -> bool:
+    union = reduce(lambda x, y: x.union(y), iterable)
+    return len(union) == sum(len(s) for s in iterable)
+
+
+__all__ = ["get_any", "get_only", "flatmap", "are_all_equal", "are_all_disjoint"]

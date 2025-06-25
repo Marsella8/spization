@@ -7,7 +7,7 @@ license = "GPL-3.0-or-later"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">=3.12,<3.14"
 networkx = "^3.3"
 multimethod = "^1.12"
 loguru = "^0.7.2"
@@ -16,8 +16,10 @@ numpy = "^2.1.0"
 rich = "^13.8.0"
 multiset = "^3.2.0"
 bidict = "^0.23.1"
+passagemath-graphs = "^10.5.43"
 
 [tool.poetry.group.dev.dependencies]
+
 mypy = "^1.11.2"
 pytest = "^8.3.2"
 pytest-cov = "^5.0.0"

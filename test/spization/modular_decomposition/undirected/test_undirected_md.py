@@ -3,6 +3,7 @@ import random
 from networkx import Graph
 
 from spization.modular_decomposition import undirected_md_naive
+from spization.modular_decomposition.undirected.undirected_md import undirected_md
 from spization.modular_decomposition.undirected.objects import (
     MDParallelUndirected,
     MDPrimeUndirected,
@@ -14,7 +15,7 @@ def test_modular_decomposition_single_node():
     input = Graph()
     input.add_node(1)
     correct = 1
-    result = undirected_md_naive(input)
+    result = undirected_md(input)
     assert correct == result
 
 
@@ -22,28 +23,28 @@ def test_modular_decomposition_parallel():
     input = Graph()
     input.add_nodes_from((1, 2, 3))
     correct = MDParallelUndirected((1, 2, 3))
-    result = undirected_md_naive(input)
+    result = undirected_md(input)
     assert correct == result
 
 
 def test_modular_decomposition_series():
     input = Graph(((1, 2), (2, 3), (1, 3)))
     correct = MDSeriesUndirected((1, 2, 3))
-    result = undirected_md_naive(input)
+    result = undirected_md(input)
     assert correct == result
 
 
 def test_modular_decomposition_prime():
     input = Graph(((1, 3), (1, 4), (2, 4)))
     correct = MDPrimeUndirected((1, 2, 3, 4))
-    result = undirected_md_naive(input)
+    result = undirected_md(input)
     assert correct == result
 
 
 def test_modular_decomposition_emerald():
     input = Graph(((1, 2), (1, 3), (2, 4), (3, 5), (4, 6), (5, 6)))
     correct = MDPrimeUndirected((1, 2, 3, 4, 5, 6))
-    result = undirected_md_naive(input)
+    result = undirected_md(input)
     assert correct == result
 
 
@@ -52,7 +53,7 @@ def test_modular_decomposition_diamond():
     correct = MDSeriesUndirected(
         (MDParallelUndirected((1, 4)), MDParallelUndirected((2, 3)))
     )
-    result = undirected_md_naive(input)
+    result = undirected_md(input)
     assert correct == result
 
 
@@ -115,7 +116,7 @@ def test_modular_decomposition_wikipedia():
         )
     )
 
-    result = undirected_md_naive(input)
+    result = undirected_md(input)
     assert correct == result
 
 
@@ -147,7 +148,7 @@ def test_modular_decomposition_complex_2():
             ),
         )
     )
-    result = undirected_md_naive(input)
+    result = undirected_md(input)
     assert correct == result
 
 
@@ -165,7 +166,7 @@ def make_random_undirected_graph(num_nodes: int, p: float) -> Graph:
 
 
 def test_modular_decomposition_random_graphs():
-    """Test that naive and non-naive implementations match on random graphs"""
+    """Test that naive and Sage-based implementations match on random graphs"""
     random.seed(42)  # For reproducibility
 
     for _ in range(100):
@@ -175,8 +176,8 @@ def test_modular_decomposition_random_graphs():
         G = make_random_undirected_graph(num_nodes, p)
 
         naive_result = undirected_md_naive(G)
-        our_result = undirected_md_naive(G)
+        sage_result = undirected_md(G)
 
         assert (
-            naive_result == our_result
+            naive_result == sage_result
         ), f"Results differ for graph with {num_nodes} nodes and {len(G.edges)} edges"
