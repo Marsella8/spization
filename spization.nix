@@ -6,16 +6,19 @@
 , rich
 , multiset
 , bidict
-, poetry-core
+, sage
+, setuptools
+, wheel
+, pythonRelaxDepsHook
 , buildPythonPackage
 , pytest
-, mypy
 }:
 
 buildPythonPackage {
   pname = "spization";
   version = "0.0.1";
   src = ./.;
+  pyproject = true;
 
   propagatedBuildInputs = [
     networkx
@@ -26,14 +29,27 @@ buildPythonPackage {
     rich
     multiset
     bidict
+    sage
+  ];
+
+  nativeBuildInputs = [
+    pythonRelaxDepsHook
   ];
 
   nativeCheckInputs = [
     pytest
-    mypy
+  ];
+
+  pythonRelaxDeps = [
+    "multimethod"
+  ];
+
+  pythonRemoveDeps = [
+    "passagemath-graphs"
   ];
 
   build-system = [
-    poetry-core
+    setuptools
+    wheel
   ];
 }

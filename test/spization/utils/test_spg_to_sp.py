@@ -1,6 +1,6 @@
 from networkx import DiGraph
 
-from spization.objects import Parallel, PureNode, Serial
+from spization.objects import Node, Parallel, Serial
 from spization.utils import spg_to_sp
 
 
@@ -8,7 +8,7 @@ def test_spg_to_sp_single_node():
     g = DiGraph()
     g.add_node(0)
     result = spg_to_sp(g)
-    correct = PureNode(0)
+    correct = Node(0)
     assert correct == result
 
 

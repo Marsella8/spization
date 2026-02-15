@@ -11,13 +11,13 @@ from spization.__internals.sp.cbc_decomposition import (
     get_component_containing_node_in_head,
     get_component_containing_node_in_tail,
 )
-from spization.objects import MultiDiEdge, Node
+from spization.objects import MultiDiEdge, Node, SerialParallelDecomposition
 
 
 @dataclass
 class InverseLineGraphResult:
     graph: MultiDiGraph
-    inverse_edge_to_line_node_map: bidict[MultiDiEdge, Node]
+    inverse_edge_to_line_node_map: bidict[MultiDiEdge, SerialParallelDecomposition]
 
 
 def inverse_line_graph(g: DiGraph) -> Optional[InverseLineGraphResult]:
@@ -52,7 +52,7 @@ def inverse_line_graph(g: DiGraph) -> Optional[InverseLineGraphResult]:
     def dst_for_node(v: Node) -> Node:
         return omega if v in snks else component_nodes[h(v)]
 
-    inverse_edge_to_line_node: bidict[MultiDiEdge, Node] = bidict()
+    inverse_edge_to_line_node: bidict[MultiDiEdge, SerialParallelDecomposition] = bidict()
 
     for v in g.nodes:
         src, dst = src_for_node(v), dst_for_node(v)

@@ -10,13 +10,13 @@ from spization.modular_decomposition.directed.objects import (
 from spization.modular_decomposition.undirected.objects import (
     Node,
 )
-from spization.objects import Parallel, Serial, SeriesParallelDecomposition
+from spization.objects import Parallel, Serial, SerialParallelDecomposition
 from spization.utils.compositions import sp_parallel_composition, sp_serial_composition
 
 
 @multimethod
 def md_to_spd(
-    md: Node, func_for_prime_module: Callable[[MDPrime], SeriesParallelDecomposition]
+    md: Node, func_for_prime_module: Callable[[MDPrime], SerialParallelDecomposition]
 ) -> Node:
     return md
 
@@ -24,7 +24,7 @@ def md_to_spd(
 @multimethod
 def md_to_spd(
     md: MDParallel,
-    func_for_prime_module: Callable[[MDPrime], SeriesParallelDecomposition],
+    func_for_prime_module: Callable[[MDPrime], SerialParallelDecomposition],
 ) -> Parallel:
     converted_children = [
         md_to_spd(child, func_for_prime_module) for child in md.children
@@ -35,7 +35,7 @@ def md_to_spd(
 @multimethod
 def md_to_spd(
     md: MDSeries,
-    func_for_prime_module: Callable[[MDPrime], SeriesParallelDecomposition],
+    func_for_prime_module: Callable[[MDPrime], SerialParallelDecomposition],
 ) -> Serial:
     converted_children = [
         md_to_spd(child, func_for_prime_module) for child in md.children
@@ -47,7 +47,7 @@ def md_to_spd(
 def md_to_spd(
     md: MDPrime,
     func_for_prime_module: Callable[
-        [MDPrime], SeriesParallelDecomposition
+        [MDPrime], SerialParallelDecomposition
     ],
-) -> SeriesParallelDecomposition:
+) -> SerialParallelDecomposition:
     return func_for_prime_module(md)

@@ -3,7 +3,7 @@ from math import log
 from random import choice, gauss, random
 from typing import Callable
 
-from spization.objects import PureNode
+from spization.objects import Node
 
 
 @dataclass(slots=True, frozen=True)
@@ -53,8 +53,8 @@ class Gaussian:
 
 
 def make_cost_map(
-    nodes: set[PureNode], callable: Callable[[], float]
-) -> dict[PureNode, float]:
+    nodes: set[Node], callable: Callable[[], float]
+) -> dict[Node, float]:
     cost_map = {node: callable() for node in nodes}
     assert all(
         val >= 0 for val in cost_map.values()
@@ -63,8 +63,8 @@ def make_cost_map(
 
 
 def apply_noise(
-    cost_map: dict[PureNode, float], noise: Callable[[], float]
-) -> dict[PureNode, float]:
+    cost_map: dict[Node, float], noise: Callable[[], float]
+) -> dict[Node, float]:
     noisy_cost_map = {node: cost + noise() for node, cost in cost_map.items()}
     assert all(
         val >= 0 for val in noisy_cost_map.values()

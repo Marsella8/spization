@@ -6,12 +6,12 @@ from typing import Collection, Iterator, Sequence
 from multimethod import multimethod
 from multiset import FrozenMultiset
 
-from .nodes import PureNode
+from .nodes import Node
 
 
 @dataclass(slots=True)
 class Parallel:
-    children: Collection[Serial | PureNode] = FrozenMultiset()
+    children: Collection[Serial | Node] = FrozenMultiset()
 
     def __post_init__(self) -> None:
         self.children = FrozenMultiset(self.children)
@@ -25,7 +25,7 @@ class Parallel:
     def __repr__(self) -> str:
         return self.__str__()
 
-    def __iter__(self) -> Iterator[Serial | PureNode]:
+    def __iter__(self) -> Iterator[Serial | Node]:
         return iter(self.children)
 
     def __len__(self) -> int:
@@ -34,7 +34,7 @@ class Parallel:
 
 @dataclass(slots=True)
 class Serial:
-    children: Sequence[Parallel | PureNode] = ()
+    children: Sequence[Parallel | Node] = ()
 
     def __post_init__(self) -> None:
         self.children = tuple(self.children)
@@ -48,14 +48,14 @@ class Serial:
     def __repr__(self) -> str:
         return self.__str__()
 
-    def __iter__(self) -> Iterator[Parallel | PureNode]:
+    def __iter__(self) -> Iterator[Parallel | Node]:
         return iter(self.children)
 
     def __len__(self) -> int:
         return len(self.children)
 
     @multimethod
-    def __getitem__(self, index: PureNode) -> Parallel | PureNode:
+    def __getitem__(self, index: Node) -> Parallel | Node:
         return self.children[index]
 
     @multimethod
@@ -63,14 +63,14 @@ class Serial:
         return Serial(self.children[range])
 
 
-type SerialParallelDecomposition = Serial | Parallel | PureNode
+type SerialParallelDecomposition = Serial | Parallel | Node
 
 
-def S(*children: Parallel | PureNode) -> Serial:
+def S(*children: Parallel | Node) -> Serial:
     return Serial(children)
 
 
-def P(*children: Serial | PureNode) -> Parallel:
+def P(*children: Serial | Node) -> Parallel:
     return Parallel(children)
 
 
@@ -91,7 +91,7 @@ class BinParallel:
         return self.__str__()
 
     def __gt__(self, other: object) -> bool:
-        if isinstance(other, PureNode):
+        if isinstance(other, Node):
             return True
         if isinstance(other, BinSerial):
             return True
@@ -114,7 +114,7 @@ class BinSerial:
     t2: BinSerialParallelDecomposition
 
     def __gt__(self, other: object) -> bool:
-        if isinstance(other, PureNode):
+        if isinstance(other, Node):
             return True
         if isinstance(other, BinParallel):
             return True
@@ -137,4 +137,4 @@ class BinSerial:
         return hash((self.t1, self.t2))
 
 
-type BinSerialParallelDecomposition = BinSerial | BinParallel | PureNode
+type BinSerialParallelDecomposition = BinSerial | BinParallel | Node

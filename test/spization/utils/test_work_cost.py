@@ -1,9 +1,9 @@
 from networkx import DiGraph
 
-from spization.objects import Parallel, PureNode, Serial
+from spization.objects import Node, Parallel, Serial
 from spization.utils import work_cost
 
-n = [PureNode(i) for i in range(4)]
+n = [Node(i) for i in range(4)]
 
 
 def test_work_cost_single_node():

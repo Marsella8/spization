@@ -1,10 +1,10 @@
-from spization.objects import Parallel, PureNode, Serial
+from spization.objects import Node, Parallel, Serial
 from spization.utils import get_nodes, random_sp
 
 
 def test_random_sp_single_node():
     sp = random_sp(1)
-    expected = PureNode(0)
+    expected = Node(0)
     assert sp == expected
 
 

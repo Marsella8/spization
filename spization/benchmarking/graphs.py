@@ -13,8 +13,8 @@ from spization.__internals.graph import (
     sinks,
     sources,
 )
-from spization.objects import PureNode
-from spization.utils import graph_serial_composition
+from spization.objects import Node
+from spization.utils import graph_serial_composition, spg_to_sp
 
 
 def make_random_2_terminal_dag(num_nodes: int, p: float) -> DiGraph:
@@ -79,9 +79,9 @@ def make_random_nasbench_101() -> DiGraph:
         inner_nodes_config = np.triu(
             np.random.randint(2, size=(num_nodes - 2, num_nodes - 2))
         )
-        input = PureNode(0)
-        output = PureNode(num_nodes - 1)
-        inner_nodes = [PureNode(i) for i in range(1, num_nodes - 1)]
+        input = Node(0)
+        output = Node(num_nodes - 1)
+        inner_nodes = [Node(i) for i in range(1, num_nodes - 1)]
         g = DiGraph()
         g.add_node(input)
         g.add_node(output)
@@ -107,7 +107,7 @@ def make_random_nasbench_101() -> DiGraph:
             return False
         if not nx.is_weakly_connected(cell):
             return False
-        if get_only(sources(cell)) != PureNode(0):
+        if get_only(sources(cell)) != Node(0):
             return False
         if get_only(sinks(cell)) != max(cell.nodes()):
             return False
@@ -126,7 +126,7 @@ def make_random_nasbench_101() -> DiGraph:
     return net
 
 
-def make_normal_taso_nasnet_cell() -> tuple[nx.DiGraph, PureNode, PureNode]:
+def make_normal_taso_nasnet_cell() -> tuple[nx.DiGraph, Node, Node]:
     g = nx.DiGraph()
 
     inputs = add_nodes(g, 2)
@@ -220,8 +220,8 @@ def make_taso_nasnet_a(num_reduction_cells: int = 2, N: int = 6) -> nx.DiGraph:
     input_node = 0
     g.add_node(input_node)
 
-    outputting: deque[PureNode] = deque([input_node, input_node, input_node])
-    inputting: deque[PureNode] = deque()
+    outputting: deque[Node] = deque([input_node, input_node, input_node])
+    inputting: deque[Node] = deque()
 
     num_cells = num_reduction_cells + N * (num_reduction_cells + 1)
 

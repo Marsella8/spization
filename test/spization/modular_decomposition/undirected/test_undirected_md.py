@@ -3,12 +3,12 @@ import random
 from networkx import Graph
 
 from spization.modular_decomposition import undirected_md_naive
-from spization.modular_decomposition.undirected.undirected_md import undirected_md
 from spization.modular_decomposition.undirected.objects import (
     MDParallelUndirected,
     MDPrimeUndirected,
     MDSeriesUndirected,
 )
+from spization.modular_decomposition.undirected.undirected_md import undirected_md
 
 
 def test_modular_decomposition_single_node():

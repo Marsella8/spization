@@ -1,8 +1,8 @@
 from random import choice, random
 
 from spization.objects import (
+    Node,
     Parallel,
-    PureNode,
     Serial,
     SerialParallelDecomposition,
 )
@@ -11,13 +11,13 @@ from spization.utils.normalize import normalize
 from spization.utils.replace_node import replace_node
 
 
-def get_random_node(sp: SerialParallelDecomposition) -> PureNode:
+def get_random_node(sp: SerialParallelDecomposition) -> Node:
     return choice(list(get_nodes(sp)))
 
 
 def random_sp(num_nodes: int, prob_serial: float = 0.5) -> SerialParallelDecomposition:
     assert 0 <= prob_serial <= 1 and num_nodes > 0
-    sp: SerialParallelDecomposition = PureNode(0)
+    sp: SerialParallelDecomposition = Node(0)
     for node in range(1, num_nodes):
         node_to_sub = get_random_node(sp)
         if random() < prob_serial:

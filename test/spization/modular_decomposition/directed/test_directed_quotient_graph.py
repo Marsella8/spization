@@ -98,4 +98,37 @@ def test_transitively_closed_dag_quotient_graph_complex():
             (4, 6),  # 4 connects to 5, 6
         ]
     )
-    ...
+    result = transitively_closed_dag_quotient_graph(G)
+
+    def make_correct():
+        correct = nx.DiGraph()
+
+        left = nx.DiGraph()
+        left_1, left_2 = nx.DiGraph(), nx.DiGraph()
+        left_1.add_node(1)
+        left_2.add_node(2)
+        left.add_nodes_from((left_1, left_2))
+
+        mid_3 = nx.DiGraph()
+        mid_3.add_node(3)
+
+        mid_4 = nx.DiGraph()
+        mid_4.add_node(4)
+
+        right = nx.DiGraph()
+        right_5, right_6 = nx.DiGraph(), nx.DiGraph()
+        right_5.add_node(5)
+        right_6.add_node(6)
+        right.add_nodes_from((right_5, right_6))
+
+        correct.add_edges_from(
+            [
+                (left, mid_3),
+                (mid_3, mid_4),
+                (mid_4, right),
+            ]
+        )
+        return correct
+
+    correct = make_correct()
+    assert are_equivalent(result, correct)

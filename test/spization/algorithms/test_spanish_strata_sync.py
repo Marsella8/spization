@@ -121,9 +121,6 @@ def test_spanish_strata_sync_graph_from_paper():
     assert dependencies_are_maintained(input, result)
 
 
-# TODO check also without the funky bug edge
-
-
 def test_correctness():
     for input in graph_generator():
         result = spanish_strata_sync(input)
@@ -131,4 +128,3 @@ def test_correctness():
         assert dependencies_are_maintained(input, result)
 
 
-# TODO does adding transitive reduction at each step affect it?

@@ -1,9 +1,9 @@
-from spization.objects import Parallel, PureNode, Serial
+from spization.objects import Node, Parallel, Serial
 from spization.utils import get_ancestors
 
 
 def test_ancestors_single_node():
-    input = PureNode(0)
+    input = Node(0)
     correct = set()
     result = get_ancestors(input, 0)
     assert correct == result

@@ -16,11 +16,11 @@ def replace_node(
 def replace_node(
     sp: Serial, node: Node, replacer: SerialParallelDecomposition
 ) -> SerialParallelDecomposition:
-    return Serial((replace_node(child, node, replacer) for child in sp))
+    return Serial(tuple(replace_node(child, node, replacer) for child in sp))
 
 
 @multimethod
 def replace_node(
     sp: Parallel, node: Node, replacer: SerialParallelDecomposition
 ) -> SerialParallelDecomposition:
-    return Parallel((replace_node(child, node, replacer) for child in sp))
+    return Parallel([replace_node(child, node, replacer) for child in sp])

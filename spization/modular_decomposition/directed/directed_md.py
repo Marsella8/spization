@@ -26,7 +26,7 @@ from spization.objects.nodes import Node
 
 def _nodes(module: ModularDecompositionTree) -> frozenset[Node]:
     if isinstance(module, Node):
-        return {module}
+        return frozenset({module})
     return module.nodes
 
 
@@ -66,7 +66,7 @@ def undirected_md_to_directed_md(md: MDParallelUndirected, G: nx.DiGraph) -> MDP
     converted_children = [
         undirected_md_to_directed_md(child, G) for child in md.children
     ]
-    return MDParallel(converted_children)
+    return MDParallel(frozenset(converted_children))
 
 
 @multimethod
@@ -74,7 +74,7 @@ def undirected_md_to_directed_md(md: MDPrimeUndirected, G: nx.DiGraph) -> MDPrim
     converted_children = [
         undirected_md_to_directed_md(child, G) for child in md.children
     ]
-    return MDPrime(converted_children)
+    return MDPrime(frozenset(converted_children))
 
 
 @multimethod
@@ -86,7 +86,7 @@ def undirected_md_to_directed_md(md: MDSeriesUndirected, G: nx.DiGraph) -> MDSer
         child for child in converted_children if child is not None
     )
     ordered_children = _get_topological_order(converted_children, G)
-    return MDSeries(ordered_children)
+    return MDSeries(tuple(ordered_children))
 
 
 @multimethod

@@ -63,11 +63,11 @@ def get_maximal_strong_modules(G: nx.Graph) -> frozenset[MaximalStrongModule]:
 def have_directed_edge(
     M: ModularDecompositionTree, N: ModularDecompositionTree, G: DiGraph | Graph
 ) -> bool:
-    M = M.nodes if not isinstance(M, Node) else {M}
-    N = N.nodes if not isinstance(N, Node) else {N}
+    m_nodes: frozenset[Node] = M.nodes if not isinstance(M, Node) else frozenset({M})
+    n_nodes: frozenset[Node] = N.nodes if not isinstance(N, Node) else frozenset({N})
 
-    for m in M:
-        for n in N:
+    for m in m_nodes:
+        for n in n_nodes:
             if G.has_edge(m, n):
                 return True
 

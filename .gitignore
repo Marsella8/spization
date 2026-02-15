@@ -7,6 +7,10 @@ __pycache__/
 # Poetry
 dist/
 
+# Setuptools
+*.egg-info/
+.eggs/
+
 # MyPy
 .mypy_cache/
 
@@ -15,6 +19,9 @@ dist/
 
 # CodeCov
 .coverage
+.coverage.*
+coverage.xml
+htmlcov/
 
 # Ruff
 .ruff_cache

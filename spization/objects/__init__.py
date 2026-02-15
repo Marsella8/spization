@@ -1,5 +1,5 @@
 from .edges import DiEdge, MultiDiEdge
-from .nodes import Node, NodeRole, PureNode, SyncNode
+from .nodes import Node, NodeRole, get_initial_node_role_map
 from .splits import (
     BinParallel,
     BinSerial,
@@ -17,9 +17,8 @@ del edges
 
 __all__ = [
     "Node",
-    "PureNode",
-    "SyncNode",
     "NodeRole",
+    "get_initial_node_role_map",
     "Serial",
     "Parallel",
     "P",

@@ -21,9 +21,8 @@ from .random_sp import random_sp
 from .replace_node import replace_node
 from .sp_to_bsp import sp_to_bsp
 from .sp_to_spg import sp_to_spg
-from .sp_to_ttspg import sp_to_ttspg
 from .spg_to_sp import spg_to_sp
-from .ttspg_to_spg import ttspg_to_spg
+from .ttspg_to_spg import contract_out_nodes_of_role, ttspg_to_spg
 from .work_cost import relative_work_cost_increase, work_cost
 
 del compositions
@@ -46,11 +45,11 @@ __all__ = [
     "get_critical_path_cost_map",
     "work_cost",
     "relative_work_cost_increase",
+    "contract_out_nodes_of_role",
     "ttspg_to_spg",
     "spg_to_sp",
     "random_sp",
     "replace_node",
-    "sp_to_ttspg",
     "bsp_to_sp",
     "sp_to_bsp",
 ]

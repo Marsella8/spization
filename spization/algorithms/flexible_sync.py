@@ -1,7 +1,7 @@
 import networkx as nx
 from networkx import DiGraph
 
-from spization.__internals.general import get_only
+from spization.__internals.general import get_only, must
 from spization.__internals.graph import (
     is_compatible_graph,
     is_single_sourced,
@@ -9,37 +9,48 @@ from spization.__internals.graph import (
     lowest_common_ancestor,
     sources,
 )
-from spization.objects import Node, PureNode, SyncNode
+from spization.objects import (
+    Node,
+    NodeRole,
+    SerialParallelDecomposition,
+    get_initial_node_role_map,
+)
 from spization.utils import (
+    contract_out_nodes_of_role,
     critical_path_cost,
     dependencies_are_maintained,
     get_critical_path_cost_map,
     spg_to_sp,
-    ttspg_to_spg,
 )
 
 
-def get_component(SP: DiGraph, nodes: Node) -> set[Node]:
+def get_component(SP: DiGraph, nodes: set[Node]) -> set[Node]:
     parents = set().union(*[SP.predecessors(node) for node in nodes])
     children = set().union(*[nx.descendants(SP, p) for p in parents])
     other_parents = set().union(*[SP.predecessors(c) for c in children])
     return parents | children | other_parents
 
 
-def get_forest(SP: DiGraph, handle: Node, component: set[Node]) -> set[Node]:
+def get_forest(
+    SP: DiGraph, handle: Node, component: set[Node], node_roles: dict[Node, NodeRole]
+) -> set[Node]:
     subtrees = [
         (set(nx.descendants(SP, node)) | {node}) for node in SP.successors(handle)
     ]
     subtrees = [subtree for subtree in subtrees if subtree & component]
     forest = set().union(*subtrees) | {handle}
-    forest = {node for node in forest if isinstance(node, PureNode)}
+    forest = {node for node in forest if node_roles[node] != NodeRole.SYNC}
     return forest
 
 
 def get_up_and_down(
-    nodes: Node, SP: DiGraph, forest: set[Node], cost_map: dict[Node, float]
-) -> tuple[set[Node], set[Node]]:
-    SP: DiGraph = ttspg_to_spg(SP)
+    nodes: set[Node],
+    SP: DiGraph,
+    forest: set[Node],
+    cost_map: dict[Node, float],
+    node_roles: dict[Node, NodeRole],
+) -> tuple[set[Node], set[Node], set[Node], set[Node]]:
+    SP = contract_out_nodes_of_role(SP, NodeRole.SYNC, node_roles)
 
     base_down = set(nodes)
     base_up = set().union(*[nx.ancestors(SP, node) for node in nodes]) & forest
@@ -50,11 +61,11 @@ def get_up_and_down(
         bipartitions = set()
         bipartitions.add((frozenset(base_up), frozenset(base_down | assignable_nodes)))
         for node in assignable_nodes:
-            reference_cost = critical_path_cost_map.get(node)
+            reference_cost = critical_path_cost_map[node]
             up = base_up | {
                 node
                 for node in assignable_nodes
-                if critical_path_cost_map.get(node) <= reference_cost
+                if critical_path_cost_map[node] <= reference_cost
             }
             down = (base_down | assignable_nodes) - up
             bipartitions.add((frozenset(up), frozenset(down)))
@@ -71,9 +82,9 @@ def get_up_and_down(
             if node in down:
                 if any(child in up for child in SP.successors(node)):
                     return False
-        parents = SP.predecessors(node)
-        if any(p not in up for p in parents):
-            return False
+                parents = SP.predecessors(node)
+                if any(p in forest and p not in up and p not in down for p in parents):
+                    return False
         return True
 
     valid_partitions = [
@@ -101,8 +112,8 @@ def get_up_and_down(
 
 
 def edges_to_remove(
-    SP: DiGraph, up: set[Node], down: set[Node]
-) -> set[tuple[Node | SyncNode, Node | SyncNode]]:
+    SP: DiGraph, up: set[Node], down: set[Node], node_roles: dict[Node, NodeRole]
+) -> set[tuple[Node, Node]]:
     to_remove = set()
     for u in up:
         for v in SP.successors(u):
@@ -110,7 +121,7 @@ def edges_to_remove(
                 to_remove.add((u, v))
     for node in list(SP.nodes()):
         if (
-            isinstance(node, SyncNode)
+            node_roles[node] == NodeRole.SYNC
             and all(p in up for p in SP.predecessors(node))
             and all(s in down for s in SP.successors(node))
         ):
@@ -118,10 +129,8 @@ def edges_to_remove(
     return to_remove
 
 
-def edges_to_add(
-    up: set[Node], down: set[Node], sync: SyncNode
-) -> set[tuple[Node | SyncNode, Node | SyncNode]]:
-    to_add: set[tuple[Node | SyncNode, Node | SyncNode]] = set()
+def edges_to_add(up: set[Node], down: set[Node], sync: Node) -> set[tuple[Node, Node]]:
+    to_add: set[tuple[Node, Node]] = set()
     for u in up:
         to_add.add((u, sync))
     for d in down:
@@ -129,7 +138,7 @@ def edges_to_add(
     return to_add
 
 
-def get_next_nodes(SP: DiGraph, g: DiGraph, cost_map: dict[Node, float]) -> Node:
+def get_next_nodes(SP: DiGraph, g: DiGraph, cost_map: dict[Node, float]) -> set[Node]:
     sp_longest_paths = longest_path_lengths_from_source(SP, cost_map)
 
     candidate_nodes: set[Node] = {
@@ -158,9 +167,13 @@ def get_next_nodes(SP: DiGraph, g: DiGraph, cost_map: dict[Node, float]) -> Node
     return nodes
 
 
-def flexible_sync(g: DiGraph, cost_map: dict[Node, float]) -> DiGraph:
+def flexible_sync(
+    g: DiGraph, cost_map: dict[Node, float]
+) -> SerialParallelDecomposition:
     assert is_single_sourced(g) and is_compatible_graph(g)
     g = nx.transitive_reduction(g)
+    node_roles = get_initial_node_role_map(g.nodes)
+    next_sync = max(g.nodes(), default=-1) + 1
     SP = DiGraph()
     cost_map = cost_map.copy()
     root: Node = get_only(sources(g))
@@ -173,20 +186,22 @@ def flexible_sync(g: DiGraph, cost_map: dict[Node, float]) -> DiGraph:
             SP.add_edges_from(g.in_edges(node))
         SP = nx.transitive_reduction(
             SP
-        )  # TODO this can be improved, simply selectively remove the previously added edges
-
+        )
         component: set[Node] = get_component(SP, nodes)
-        handle: Node = lowest_common_ancestor(SP, component)
-        forest: set[Node] = get_forest(SP, handle, component)
+        handle = must(lowest_common_ancestor(SP, component))
+        forest: set[Node] = get_forest(SP, handle, component, node_roles)
         up, down, up_frontier, down_frontier = get_up_and_down(
-            nodes, SP, forest, cost_map
+            nodes, SP, forest, cost_map, node_roles
         )
 
-        sync = SyncNode()
+        sync = next_sync
+        next_sync += 1
+        SP.add_node(sync)
+        node_roles[sync] = NodeRole.SYNC
         cost_map[sync] = 0
-        SP.remove_edges_from(edges_to_remove(SP, up, down))
+        SP.remove_edges_from(edges_to_remove(SP, up, down, node_roles))
         SP.add_edges_from(edges_to_add(up_frontier, down_frontier, sync))
-    SP = ttspg_to_spg(SP)
+    SP = contract_out_nodes_of_role(SP, NodeRole.SYNC, node_roles)
     decomp = spg_to_sp(SP)
     assert decomp is not None
     assert dependencies_are_maintained(g, decomp)

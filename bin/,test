@@ -6,5 +6,5 @@ set -euxo pipefail
 
 cd "$DIR/.."
 
-mypy spization/
-pytest
+uv run ty check
+uv run pytest

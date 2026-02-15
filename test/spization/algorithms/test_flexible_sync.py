@@ -2,9 +2,9 @@ import random
 
 from networkx import DiGraph
 
-from spization.benchmarking.graphs import make_taso_nasnet_a
 from spization.algorithms import flexible_sync
-from spization.objects import Node, Parallel, PureNode, Serial
+from spization.benchmarking.graphs import make_taso_nasnet_a
+from spization.objects import Node, Parallel, Serial
 from spization.utils import dependencies_are_maintained
 from test.spization.testing_utils import graph_generator
 
@@ -25,11 +25,11 @@ def truly_random_cost_map(g: DiGraph) -> dict[Node, float]:
 
 def test_flexible_sync_single_node():
     input = DiGraph()
-    input.add_node(PureNode(0))
+    input.add_node(Node(0))
     cost_map = truly_random_cost_map(input)
 
     result = flexible_sync(input, cost_map)
-    correct = PureNode(0)
+    correct = Node(0)
 
     assert result == correct
     assert dependencies_are_maintained(input, result)

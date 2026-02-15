@@ -3,7 +3,7 @@ import random
 import statistics
 from dataclasses import dataclass
 from random import gauss
-from typing import Any, Dict, Tuple
+from typing import Any, Callable, Dict, Tuple
 
 from cost_modelling import Exponential, apply_noise, make_cost_map
 from graphs import (
@@ -45,21 +45,29 @@ def get_epoch_metrics(
     graph_gen_args: Dict[str, Any],
     cost_sampler_name: str,
     cost_sampler_args: Dict[str, Any],
-    noise_sampler_name: str = None,
-    noise_sampler_args: Dict[str, Any] = None,
+    noise_sampler_name: str | None = None,
+    noise_sampler_args: Dict[str, Any] | None = None,
 ) -> Tuple[float, float, float]:
     dag = make_random_2_terminal_dag(**graph_gen_args)
 
     if cost_sampler_name == "uniform":
-        cost_sample_fn = lambda: uniform_sampler(cost_sampler_args["max_val"], None)
+        max_val = cost_sampler_args["max_val"]
+
+        def cost_sample_fn() -> float:
+            return uniform_sampler(max_val, None)
+
     elif cost_sampler_name == "exponential":
         cost_sample_fn = Exponential(cost_sampler_args["scale"])
     else:
         raise ValueError(f"Unknown cost sampler: {cost_sampler_name}")
 
-    noise_sample_fn = None
+    noise_sample_fn: Callable[[], float] | None = None
     if noise_sampler_name == "gaussian":
-        noise_sample_fn = lambda: noise_sampler(noise_sampler_args["sigma"], None)
+        assert noise_sampler_args is not None
+        sigma = noise_sampler_args["sigma"]
+
+        def noise_sample_fn() -> float:
+            return noise_sampler(sigma, None)
 
     base_costs = make_cost_map(dag.nodes(), cost_sample_fn)
     final_costs = (

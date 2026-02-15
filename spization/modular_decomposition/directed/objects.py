@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Iterable, Union
+from typing import Iterable
 
 from spization.__internals.general import flatmap
 from spization.objects.nodes import Node
@@ -9,7 +9,7 @@ from spization.objects.nodes import Node
 
 @dataclass
 class MDSeries:
-    children: tuple[MDParallel | MDPrime | Node] = field(default_factory=tuple)
+    children: tuple[ModularDecompositionTree, ...] = field(default_factory=tuple)
 
     def __post_init__(self) -> None:
         self.children = tuple(self.children)
@@ -37,7 +37,7 @@ class MDSeries:
 
 @dataclass
 class MDParallel:
-    children: frozenset[Union[MDSeries, "MDPrime", Node]] = field(
+    children: frozenset[ModularDecompositionTree] = field(
         default_factory=frozenset
     )
 
@@ -67,7 +67,7 @@ class MDParallel:
 
 @dataclass
 class MDPrime:
-    children: frozenset[Union[MDSeries, MDParallel, Node]] = field(
+    children: frozenset[ModularDecompositionTree] = field(
         default_factory=frozenset
     )
 
@@ -80,7 +80,7 @@ class MDPrime:
     def __len__(self) -> int:
         return len(self.children)
 
-    def __iter__(self) -> Iterable[MDSeries | MDParallel | Node]:
+    def __iter__(self) -> Iterable[ModularDecompositionTree]:
         return iter(self.children)
 
     def __repr__(self) -> str:

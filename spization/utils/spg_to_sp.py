@@ -7,7 +7,7 @@ from networkx import DiGraph, MultiDiGraph
 
 from spization.__internals.general import get_only
 from spization.__internals.sp.inverse_line_graph import inverse_line_graph
-from spization.objects import DiEdge, MultiDiEdge, Node, SerialParallelDecomposition
+from spization.objects import DiEdge, MultiDiEdge, SerialParallelDecomposition
 from spization.utils.compositions import sp_parallel_composition, sp_serial_composition
 
 
@@ -81,7 +81,7 @@ def spg_to_sp(
     if inverse_line_graph_result is None:
         return None
     ttsp: MultiDiGraph = inverse_line_graph_result.graph
-    ttsp_edge_to_sp_tree: bidict[MultiDiEdge, Node] = (
+    ttsp_edge_to_sp_tree: bidict[MultiDiEdge, SerialParallelDecomposition] = (
         inverse_line_graph_result.inverse_edge_to_line_node_map
     )
     while True:

@@ -8,8 +8,8 @@ from networkx import DiGraph
 
 from spization.__internals.graph import sinks, sources
 from spization.objects import (
+    Node,
     Parallel,
-    PureNode,
     Serial,
     SerialParallelDecomposition,
 )
@@ -18,17 +18,18 @@ from spization.objects import (
 def sp_parallel_composition(
     elements: Iterable[SerialParallelDecomposition],
 ) -> Parallel:
-    children: Multiset[Union[Serial, PureNode]] = Multiset()
+    children: Multiset[Union[Serial, Node]] = Multiset()
     for element in elements:
         if isinstance(element, Parallel):
-            children += element.children
+            for child in element.children:
+                children[child] += 1
         else:
             children[element] += 1
     return Parallel(children)
 
 
 def sp_serial_composition(elements: Iterable[SerialParallelDecomposition]) -> Serial:
-    children: list[Union[Parallel, PureNode]] = []
+    children: list[Union[Parallel, Node]] = []
     for element in elements:
         if isinstance(element, Serial):
             children.extend(element)

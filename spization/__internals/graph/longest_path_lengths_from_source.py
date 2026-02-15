@@ -28,7 +28,7 @@ def longest_path_lengths_from_source(
     g: DiGraph, cost_map: dict[Node, int | float]
 ) -> dict[Node, int | float]:
     assert is_single_sourced(g)
-    dist: dict[Node, int] = dict.fromkeys(g.nodes, -1)
+    dist: dict[Node, int | float] = dict.fromkeys(g.nodes, -1)
     root: Node = get_only(sources(g))
     dist[root] = cost_map[root]
     topo_order = nx.topological_sort(g)

@@ -20,7 +20,7 @@ def parallel_modular_decomposition(G: nx.Graph) -> ModularDecompositionTreeUndir
     for comp in nx.connected_components(G):
         sub = G.subgraph(comp)
         children.add(undirected_md_naive(sub))
-    return MDParallelUndirected(children)
+    return MDParallelUndirected(frozenset(children))
 
 
 def series_modular_decomposition(G: nx.Graph) -> ModularDecompositionTreeUndirected:
@@ -28,15 +28,14 @@ def series_modular_decomposition(G: nx.Graph) -> ModularDecompositionTreeUndirec
     for comp in nx.connected_components(nx.complement(G)):
         sub = G.subgraph(comp)
         children.add(undirected_md_naive(sub))
-    return MDSeriesUndirected(children)
+    return MDSeriesUndirected(frozenset(children))
 
 
 def prime_modular_decomposition(G: nx.Graph) -> ModularDecompositionTreeUndirected:
     maximal_strong_modules = get_maximal_strong_modules(G)
-    print(maximal_strong_modules)
     components = [G.subgraph(module) for module in maximal_strong_modules]
     children = [undirected_md_naive(component) for component in components]
-    return MDPrimeUndirected(children)
+    return MDPrimeUndirected(frozenset(children))
 
 
 def undirected_md_naive(G: nx.Graph) -> ModularDecompositionTreeUndirected:

@@ -1,7 +1,7 @@
 import networkx as nx
 from networkx import DiGraph
 
-from spization.objects import PureNode
+from spization.objects import Node
 
 from .sinks import sinks
 from .sources import sources
@@ -15,7 +15,7 @@ def is_2_terminal_dag(g: DiGraph) -> bool:
 
 
 def is_compatible_graph(g: DiGraph) -> bool:
-    return all(isinstance(node, PureNode) for node in g.nodes())
+    return all(isinstance(node, Node) for node in g.nodes())
 
 
 def is_single_sourced(g: DiGraph) -> bool:

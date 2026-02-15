@@ -1,7 +1,7 @@
 import networkx as nx
 from networkx import DiGraph
 
-from spization.__internals.general import get_only
+from spization.__internals.general import get_only, must
 from spization.__internals.graph import (
     add_node,
     is_2_terminal_dag,
@@ -14,16 +14,15 @@ from spization.__internals.graph import (
 from spization.objects import (
     Node,
     NodeRole,
-    PureNode,
     SerialParallelDecomposition,
-    SyncNode,
+    get_initial_node_role_map,
 )
-from spization.utils import spg_to_sp, ttspg_to_spg
+from spization.utils import contract_out_nodes_of_role, spg_to_sp
 
 
 def add_dummy_nodes(
-    g: DiGraph, node_roles: dict[PureNode, NodeRole]
-) -> tuple[DiGraph, dict[PureNode, NodeRole]]:
+    g: DiGraph, node_roles: dict[Node, NodeRole]
+) -> tuple[DiGraph, dict[Node, NodeRole]]:
     new_g = g.copy()
     depth_map: dict[Node, int] = longest_path_lengths_from_source(g)
     for src, dst in list(g.edges()):
@@ -47,19 +46,15 @@ def add_dummy_nodes(
 
 
 def delete_dummy_nodes(g: DiGraph, node_roles) -> DiGraph:
-    c = g.copy()
-
-    for node in g.nodes():
-        if node_roles[node] == NodeRole.DUMMY:
-            for pred in list(c.predecessors(node)):
-                for succ in list(c.successors(node)):
-                    c.add_edge(pred, succ)
-            c.remove_node(node)
-    return c
+    return contract_out_nodes_of_role(g, NodeRole.DUMMY, node_roles)
 
 
 def get_component(
-    SP: DiGraph, node: Node, depth_map: dict[Node, int], max_depth: int
+    SP: DiGraph,
+    node: Node,
+    depth_map: dict[Node, int],
+    max_depth: int,
+    node_roles: dict[Node, NodeRole],
 ) -> set[Node]:
     last_two_layers: DiGraph = SP.subgraph(
         [
@@ -67,26 +62,27 @@ def get_component(
             for n in SP.nodes()
             if (depth_map.get(n) in (max_depth, max_depth - 1))
             or (
-                isinstance(n, SyncNode)
+                node_roles[n] == NodeRole.SYNC
                 and all(depth_map[s] == max_depth for s in SP.successors(n))
             )
         ]
     )
-    # assert(all(not isinstance(n, SyncNode) for n in last_two_layers.nodes))
     component: set[Node] = get_only(
         [c for c in nx.weakly_connected_components(last_two_layers) if node in c]
     )
-    component = {n for n in component if not isinstance(n, SyncNode)}
+    component = {n for n in component if node_roles[n] != NodeRole.SYNC}
     return component
 
 
-def get_forest(SP: DiGraph, handle: Node, component: set[Node]) -> set[Node]:
+def get_forest(
+    SP: DiGraph, handle: Node, component: set[Node], node_roles: dict[Node, NodeRole]
+) -> set[Node]:
     subtrees = [
         (set(nx.descendants(SP, node)) | {node}) for node in SP.successors(handle)
     ]
     subtrees = [subtree for subtree in subtrees if subtree & component]
     forest = set().union(*subtrees) | {handle}
-    forest = {node for node in forest if not isinstance(node, SyncNode)}
+    forest = {node for node in forest if node_roles[node] != NodeRole.SYNC}
     return forest
 
 
@@ -112,24 +108,21 @@ def edges_to_remove(
     return to_remove
 
 
-def edges_to_add(
-    up: set[Node], down: set[Node], node_roles
-) -> tuple[set[tuple[Node, Node]], dict]:
+def edges_to_add(up: set[Node], down: set[Node], sync: Node) -> set[tuple[Node, Node]]:
     to_add: set[tuple[Node, Node]] = set()
-    sync = SyncNode()
-    node_roles[sync] = NodeRole.SYNC
     for u in up:
         to_add.add((u, sync))
     for d in down:
         to_add.add((sync, d))
-    return (to_add, node_roles)
+    return to_add
 
 
 def spanish_strata_sync(g: DiGraph) -> SerialParallelDecomposition:
     assert is_2_terminal_dag(g) and is_compatible_graph(g)
     g = nx.transitive_reduction(g)
-    node_roles = {n: NodeRole.STANDARD for n in g.nodes}
+    node_roles = get_initial_node_role_map(g.nodes)
     g, node_roles = add_dummy_nodes(g, node_roles)
+    next_sync = max(g.nodes(), default=-1) + 1
     depth_map: dict[Node, int] = longest_path_lengths_from_source(g)
     root: Node = get_only(sources(g))
     SP = DiGraph()
@@ -142,18 +135,21 @@ def spanish_strata_sync(g: DiGraph) -> SerialParallelDecomposition:
         SP = nx.transitive_reduction(SP)
         max_depth: int = max({d for n, d in depth_map.items() if n in SP.nodes()})
 
-        component: set[Node] = get_component(SP, node, depth_map, max_depth)
-        handle: Node = lowest_common_ancestor(SP, component)
-        forest: set[Node] = get_forest(SP, handle, component)
+        component: set[Node] = get_component(SP, node, depth_map, max_depth, node_roles)
+        handle = must(lowest_common_ancestor(SP, component))
+        forest: set[Node] = get_forest(SP, handle, component, node_roles)
         up, down = get_up_and_down(forest, depth_map, max_depth)
 
         SP.remove_edges_from(edges_to_remove(SP, up, down))
-        edges, node_roles = edges_to_add(up, down, node_roles)
-        SP.add_edges_from(edges)
+        sync = next_sync
+        next_sync += 1
+        SP.add_node(sync)
+        node_roles[sync] = NodeRole.SYNC
+        SP.add_edges_from(edges_to_add(up, down, sync))
 
-    SP = nx.transitive_reduction(SP)
-    SP = ttspg_to_spg(SP)
     SP = delete_dummy_nodes(SP, node_roles)
+    SP = nx.transitive_reduction(SP)
+    SP = contract_out_nodes_of_role(SP, NodeRole.SYNC, node_roles)
     decomp: SerialParallelDecomposition | None = spg_to_sp(SP)
     assert decomp is not None
     return decomp
